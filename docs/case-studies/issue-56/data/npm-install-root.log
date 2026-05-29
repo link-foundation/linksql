@@ -1,0 +1,16 @@
+
+> my-package@0.9.0 prepare
+> husky || true
+
+
+up to date, audited 321 packages in 962ms
+
+74 packages are looking for funding
+  run `npm fund` for details
+
+6 vulnerabilities (3 moderate, 3 high)
+
+To address all issues, run:
+  npm audit fix
+
+Run `npm audit` for details.

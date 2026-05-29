@@ -1,0 +1,11 @@
+
+> my-package@0.9.0 changeset:status
+> changeset status --since=origin/main
+
+🦋  info NO packages to be bumped at patch
+🦋  ---
+🦋  info Packages to be bumped at minor:
+🦋  info
+🦋  - my-package
+🦋  ---
+🦋  info NO packages to be bumped at major

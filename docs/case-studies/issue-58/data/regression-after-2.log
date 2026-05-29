@@ -1,0 +1,69 @@
+TAP version 13
+# Subtest: publishable package metadata
+    # Subtest: uses the real link-foundation example package name
+    ok 1 - uses the real link-foundation example package name
+      ---
+      duration_ms: 0.768247
+      ...
+    # Subtest: defines a globally installable CLI command
+    ok 2 - defines a globally installable CLI command
+      ---
+      duration_ms: 0.179809
+      ...
+    # Subtest: runs package functions through the CLI command
+    ok 3 - runs package functions through the CLI command
+      ---
+      duration_ms: 0.28153
+      ...
+    # Subtest: publishes only the package runtime surface
+    ok 4 - publishes only the package runtime surface
+      ---
+      duration_ms: 0.135933
+      ...
+    1..4
+ok 1 - publishable package metadata
+  ---
+  duration_ms: 2.292483
+  type: 'suite'
+  ...
+# Subtest: universal React example app
+    # Subtest: defines the expected app package and build targets
+    ok 1 - defines the expected app package and build targets
+      ---
+      duration_ms: 2.279303
+      ...
+    # Subtest: renders a visual UI using the package add and multiply functions
+    ok 2 - renders a visual UI using the package add and multiply functions
+      ---
+      duration_ms: 0.204445
+      ...
+    # Subtest: shares the Vite build output with Capacitor and GitHub Pages
+    ok 3 - shares the Vite build output with Capacitor and GitHub Pages
+      ---
+      duration_ms: 0.161841
+      ...
+    # Subtest: adds root scripts and a workflow for web, desktop, and mobile checks
+    ok 4 - adds root scripts and a workflow for web, desktop, and mobile checks
+      ---
+      duration_ms: 0.191687
+      ...
+    # Subtest: documents local validation without store credentials
+    ok 5 - documents local validation without store credentials
+      ---
+      duration_ms: 0.108662
+      ...
+    1..5
+ok 2 - universal React example app
+  ---
+  duration_ms: 3.812262
+  type: 'suite'
+  ...
+1..2
+# tests 9
+# suites 2
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 65.221792

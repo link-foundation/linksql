@@ -1,0 +1,81 @@
+bun test v1.3.13 (bf2e2cec)
+
+tests/create-github-release.test.js:
+(pass) create-github-release release title formatting > parses language from CLI arguments and environment defaults [1.00ms]
+(pass) create-github-release release title formatting > builds a human-readable release name from a language-prefixed tag [1.00ms]
+(pass) create-github-release.mjs > uses gh api and reports successful creation only for exit code 0
+(pass) create-github-release.mjs > throws when gh api exits non-zero with an unexpected error
+(pass) create-github-release.mjs > treats already_exists as an idempotent gh api result
+(pass) create-github-release.mjs > passes release payload to gh api and reports success only on exit code 0 [71.00ms]
+(pass) create-github-release.mjs > passes a human-readable release name for language-prefixed tags [75.00ms]
+(pass) create-github-release.mjs > fails when gh api exits non-zero with an unexpected error [104.00ms]
+(pass) create-github-release.mjs > treats already_exists as an explicit idempotent skip [63.00ms]
+
+tests/index.test.js:
+(pass) add function > should add two positive numbers
+(pass) add function > should add negative numbers
+(pass) add function > should add zero
+(pass) multiply function > should multiply two positive numbers
+(pass) multiply function > should multiply by zero
+(pass) multiply function > should multiply negative numbers
+
+tests/universal-app.test.js:
+(pass) universal React example app > defines the expected app package and build targets
+(pass) universal React example app > renders a visual UI using the package add and multiply functions
+(pass) universal React example app > shares the Vite build output with Capacitor and GitHub Pages
+(pass) universal React example app > adds root scripts and a workflow for web, desktop, and mobile checks [1.00ms]
+(pass) universal React example app > documents local validation without store credentials
+
+tests/release-badge.test.js:
+(pass) release badge version normalization > strips a plain v prefix for backward compatibility
+(pass) release badge version normalization > strips a js-v prefix from multi-language release tags
+(pass) release badge version normalization > strips a rust-v prefix from multi-language release tags
+(pass) release badge version normalization > escapes hyphens in prerelease versions for shields.io static badge paths
+(pass) release badge version normalization > builds a valid shields.io badge URL for prefixed tags
+(pass) release badge version normalization > builds a valid shields.io badge URL for prefixed prerelease tags
+
+tests/ci-timeouts.test.js:
+(pass) CI timeout policy > sets timeout-minutes for every release workflow job [2.00ms]
+(pass) CI timeout policy > sets timeout-minutes for every link workflow job [1.00ms]
+(pass) CI timeout policy > parses workflow files checked out with Windows line endings
+(pass) CI timeout policy > caps individual Node.js and Bun tests at 30 seconds
+
+tests/docker-publish.test.js:
+(pass) optional Docker Hub publishing workflow > adds a Docker publish job downstream of npm release jobs [1.00ms]
+(pass) optional Docker Hub publishing workflow > waits for the exact npm version before publishing Docker tags [1.00ms]
+(pass) optional Docker Hub publishing workflow > uses Docker official GitHub Actions with DOCKERHUB_TOKEN authentication
+(pass) Docker publish configuration > keeps Docker publishing disabled until DOCKERHUB_IMAGE is configured
+(pass) Docker publish configuration > reports missing Docker Hub credentials when publishing is enabled
+(pass) Docker publish configuration > accepts complete Docker Hub configuration without exposing the token [1.00ms]
+(pass) wait-for-npm.mjs > parses release wait options
+(pass) wait-for-npm.mjs > retries until npm reports the requested version
+
+tests/tag-prefix.test.js:
+(pass) tag prefix logic > defaults to "v" prefix (backward compatible)
+(pass) tag prefix logic > supports "js-v" prefix for multi-language repos
+(pass) tag prefix logic > supports "rust-v" prefix
+(pass) tag prefix logic > supports empty prefix
+(pass) tag prefix logic > works with pre-release versions
+
+tests/setup-npm.test.js:
+(pass) setup-npm version requirements > compares semantic versions numerically
+(pass) setup-npm version requirements > requires npm 11.5.1 or later [1.00ms]
+(pass) setup-npm version requirements > requires Node.js 22.14.0 or later
+(pass) setup-npm version requirements > selects the latest npm 11 tarball that satisfies trusted publishing
+
+tests/check-file-line-limits.test.js:
+(pass) check-file-line-limits.sh > defines a warning band below the hard limit
+(pass) check-file-line-limits.sh > warns without failing for files above the warning threshold [22.00ms]
+(pass) check-file-line-limits.sh > still fails files over the hard limit [13.00ms]
+(pass) check-file-line-limits.sh > normalizes padded wc output from BSD-like environments [22.00ms]
+
+tests/package-info.test.js:
+(pass) package info helpers > reads scoped package names and versions from package.json content
+(pass) package info helpers > formats npm package specifiers from the derived package name
+(pass) package info helpers > formats changeset headers from the derived package name
+(pass) package info helpers > matches changesets for the derived package name only
+(pass) package info helpers > reports missing package names clearly
+
+ 56 pass
+ 0 fail
+Ran 56 tests across 10 files. [475.00ms]

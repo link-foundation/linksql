@@ -1,0 +1,17 @@
+
+> @link-foundation/example-package-name@0.10.0 example:web:build
+> npm --prefix examples/universal-app run build
+
+
+> universal-example-app@0.1.0 build
+> vite build
+
+vite v6.4.2 building for production...
+transforming...
+✓ 23 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.60 kB │ gzip:  0.36 kB
+dist/assets/index-BvbnxZ0g.css    2.38 kB │ gzip:  1.05 kB
+dist/assets/index-Ujj7CCT4.js   145.00 kB │ gzip: 46.84 kB
+✓ built in 1.98s

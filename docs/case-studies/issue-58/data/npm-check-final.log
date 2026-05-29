@@ -1,0 +1,23 @@
+
+> @link-foundation/example-package-name@0.10.0 check
+> npm run lint && npm run format:check && npm run check:duplication
+
+
+> @link-foundation/example-package-name@0.10.0 lint
+> eslint .
+
+
+> @link-foundation/example-package-name@0.10.0 format:check
+> prettier --check .
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> @link-foundation/example-package-name@0.10.0 check:duplication
+> jscpd .
+
+[3m[90mtime[39m[23m: 0.139ms
+
+[90m💡 Auto-refactor with AI: npx skills add kucherenko/jscpd[39m
+[90m🎩 New: Gangsta Agents — discipline your AI coding → gangsta.page[39m
+[90m💖 Support jscpd project → https://opencollective.com/jscpd[39m

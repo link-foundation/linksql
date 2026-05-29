@@ -1,0 +1,424 @@
+
+> @link-foundation/example-package-name@0.10.0 test
+> node --test --test-timeout=30000 tests/*.test.js
+
+TAP version 13
+# Subtest: check-file-line-limits.sh
+    # Subtest: defines a warning band below the hard limit
+    ok 1 - defines a warning band below the hard limit
+      ---
+      duration_ms: 0.871712
+      ...
+    # Subtest: warns without failing for files above the warning threshold
+    ok 2 - warns without failing for files above the warning threshold
+      ---
+      duration_ms: 39.835579
+      ...
+    # Subtest: still fails files over the hard limit
+    ok 3 - still fails files over the hard limit
+      ---
+      duration_ms: 21.976362
+      ...
+    # Subtest: normalizes padded wc output from BSD-like environments
+    ok 4 - normalizes padded wc output from BSD-like environments
+      ---
+      duration_ms: 26.38815
+      ...
+    1..4
+ok 1 - check-file-line-limits.sh
+  ---
+  duration_ms: 95.415995
+  type: 'suite'
+  ...
+# Subtest: CI timeout policy
+    # Subtest: sets timeout-minutes for every release workflow job
+    ok 1 - sets timeout-minutes for every release workflow job
+      ---
+      duration_ms: 2.571169
+      ...
+    # Subtest: sets timeout-minutes for every link workflow job
+    ok 2 - sets timeout-minutes for every link workflow job
+      ---
+      duration_ms: 1.41988
+      ...
+    # Subtest: parses workflow files checked out with Windows line endings
+    ok 3 - parses workflow files checked out with Windows line endings
+      ---
+      duration_ms: 0.194381
+      ...
+    # Subtest: caps individual Node.js and Bun tests at 30 seconds
+    ok 4 - caps individual Node.js and Bun tests at 30 seconds
+      ---
+      duration_ms: 1.733389
+      ...
+    1..4
+ok 2 - CI timeout policy
+  ---
+  duration_ms: 9.653773
+  type: 'suite'
+  ...
+# Subtest: create-github-release release title formatting
+    # Subtest: parses language from CLI arguments and environment defaults
+    ok 1 - parses language from CLI arguments and environment defaults
+      ---
+      duration_ms: 0.948877
+      ...
+    # Subtest: builds a human-readable release name from a language-prefixed tag
+    ok 2 - builds a human-readable release name from a language-prefixed tag
+      ---
+      duration_ms: 0.592845
+      ...
+    1..2
+ok 3 - create-github-release release title formatting
+  ---
+  duration_ms: 2.543107
+  type: 'suite'
+  ...
+# Subtest: create-github-release.mjs
+    # Subtest: uses gh api and reports successful creation only for exit code 0
+    ok 1 - uses gh api and reports successful creation only for exit code 0
+      ---
+      duration_ms: 0.436311
+      ...
+    # Subtest: throws when gh api exits non-zero with an unexpected error
+    ok 2 - throws when gh api exits non-zero with an unexpected error
+      ---
+      duration_ms: 0.268351
+      ...
+    # Subtest: treats already_exists as an idempotent gh api result
+    ok 3 - treats already_exists as an idempotent gh api result
+      ---
+      duration_ms: 0.243143
+      ...
+    # Subtest: passes release payload to gh api and reports success only on exit code 0
+    ok 4 - passes release payload to gh api and reports success only on exit code 0
+      ---
+      duration_ms: 208.936573
+      ...
+    # Subtest: passes a human-readable release name for language-prefixed tags
+    ok 5 - passes a human-readable release name for language-prefixed tags
+      ---
+      duration_ms: 188.023818
+      ...
+    # Subtest: fails when gh api exits non-zero with an unexpected error
+    ok 6 - fails when gh api exits non-zero with an unexpected error
+      ---
+      duration_ms: 85.676594
+      ...
+    # Subtest: treats already_exists as an explicit idempotent skip
+    ok 7 - treats already_exists as an explicit idempotent skip
+      ---
+      duration_ms: 104.101995
+      ...
+    1..7
+ok 4 - create-github-release.mjs
+  ---
+  duration_ms: 588.364306
+  type: 'suite'
+  ...
+# Subtest: optional Docker Hub publishing workflow
+    # Subtest: adds a Docker publish job downstream of npm release jobs
+    ok 1 - adds a Docker publish job downstream of npm release jobs
+      ---
+      duration_ms: 1.267231
+      ...
+    # Subtest: waits for the exact npm version before publishing Docker tags
+    ok 2 - waits for the exact npm version before publishing Docker tags
+      ---
+      duration_ms: 1.415083
+      ...
+    # Subtest: uses Docker official GitHub Actions with DOCKERHUB_TOKEN authentication
+    ok 3 - uses Docker official GitHub Actions with DOCKERHUB_TOKEN authentication
+      ---
+      duration_ms: 2.210541
+      ...
+    1..3
+ok 5 - optional Docker Hub publishing workflow
+  ---
+  duration_ms: 6.039778
+  type: 'suite'
+  ...
+# Subtest: Docker publish configuration
+    # Subtest: keeps Docker publishing disabled until DOCKERHUB_IMAGE is configured
+    ok 1 - keeps Docker publishing disabled until DOCKERHUB_IMAGE is configured
+      ---
+      duration_ms: 0.34829
+      ...
+    # Subtest: reports missing Docker Hub credentials when publishing is enabled
+    ok 2 - reports missing Docker Hub credentials when publishing is enabled
+      ---
+      duration_ms: 1.546079
+      ...
+    # Subtest: accepts complete Docker Hub configuration without exposing the token
+    ok 3 - accepts complete Docker Hub configuration without exposing the token
+      ---
+      duration_ms: 0.331625
+      ...
+    1..3
+ok 6 - Docker publish configuration
+  ---
+  duration_ms: 3.271015
+  type: 'suite'
+  ...
+# Subtest: wait-for-npm.mjs
+    # Subtest: parses release wait options
+    ok 1 - parses release wait options
+      ---
+      duration_ms: 0.331535
+      ...
+    # Subtest: retries until npm reports the requested version
+    ok 2 - retries until npm reports the requested version
+      ---
+      duration_ms: 0.356652
+      ...
+    1..2
+ok 7 - wait-for-npm.mjs
+  ---
+  duration_ms: 0.847295
+  type: 'suite'
+  ...
+# Subtest: add function
+    # Subtest: should add two positive numbers
+    ok 1 - should add two positive numbers
+      ---
+      duration_ms: 0.77044
+      ...
+    # Subtest: should add negative numbers
+    ok 2 - should add negative numbers
+      ---
+      duration_ms: 0.144565
+      ...
+    # Subtest: should add zero
+    ok 3 - should add zero
+      ---
+      duration_ms: 0.087902
+      ...
+    1..3
+ok 8 - add function
+  ---
+  duration_ms: 7.974386
+  type: 'suite'
+  ...
+# Subtest: multiply function
+    # Subtest: should multiply two positive numbers
+    ok 1 - should multiply two positive numbers
+      ---
+      duration_ms: 0.182252
+      ...
+    # Subtest: should multiply by zero
+    ok 2 - should multiply by zero
+      ---
+      duration_ms: 0.14053
+      ...
+    # Subtest: should multiply negative numbers
+    ok 3 - should multiply negative numbers
+      ---
+      duration_ms: 0.070847
+      ...
+    1..3
+ok 9 - multiply function
+  ---
+  duration_ms: 0.537242
+  type: 'suite'
+  ...
+# Subtest: package info helpers
+    # Subtest: reads scoped package names and versions from package.json content
+    ok 1 - reads scoped package names and versions from package.json content
+      ---
+      duration_ms: 0.829729
+      ...
+    # Subtest: formats npm package specifiers from the derived package name
+    ok 2 - formats npm package specifiers from the derived package name
+      ---
+      duration_ms: 0.192347
+      ...
+    # Subtest: formats changeset headers from the derived package name
+    ok 3 - formats changeset headers from the derived package name
+      ---
+      duration_ms: 0.155653
+      ...
+    # Subtest: matches changesets for the derived package name only
+    ok 4 - matches changesets for the derived package name only
+      ---
+      duration_ms: 2.875083
+      ...
+    # Subtest: reports missing package names clearly
+    ok 5 - reports missing package names clearly
+      ---
+      duration_ms: 0.300959
+      ...
+    1..5
+ok 10 - package info helpers
+  ---
+  duration_ms: 5.427362
+  type: 'suite'
+  ...
+# Subtest: publishable package metadata
+    # Subtest: uses the real link-foundation example package name
+    ok 1 - uses the real link-foundation example package name
+      ---
+      duration_ms: 1.144078
+      ...
+    # Subtest: defines a globally installable CLI command
+    ok 2 - defines a globally installable CLI command
+      ---
+      duration_ms: 0.316092
+      ...
+    # Subtest: runs package functions through the CLI command
+    ok 3 - runs package functions through the CLI command
+      ---
+      duration_ms: 0.349042
+      ...
+    # Subtest: runs when invoked through an npm-style bin symlink
+    ok 4 - runs when invoked through an npm-style bin symlink
+      ---
+      duration_ms: 125.041529
+      ...
+    # Subtest: publishes only the package runtime surface
+    ok 5 - publishes only the package runtime surface
+      ---
+      duration_ms: 3.103594
+      ...
+    1..5
+ok 11 - publishable package metadata
+  ---
+  duration_ms: 135.34257
+  type: 'suite'
+  ...
+# Subtest: release badge version normalization
+    # Subtest: strips a plain v prefix for backward compatibility
+    ok 1 - strips a plain v prefix for backward compatibility
+      ---
+      duration_ms: 6.494767
+      ...
+    # Subtest: strips a js-v prefix from multi-language release tags
+    ok 2 - strips a js-v prefix from multi-language release tags
+      ---
+      duration_ms: 0.318837
+      ...
+    # Subtest: strips a rust-v prefix from multi-language release tags
+    ok 3 - strips a rust-v prefix from multi-language release tags
+      ---
+      duration_ms: 0.155422
+      ...
+    # Subtest: escapes hyphens in prerelease versions for shields.io static badge paths
+    ok 4 - escapes hyphens in prerelease versions for shields.io static badge paths
+      ---
+      duration_ms: 0.161932
+      ...
+    # Subtest: builds a valid shields.io badge URL for prefixed tags
+    ok 5 - builds a valid shields.io badge URL for prefixed tags
+      ---
+      duration_ms: 0.275492
+      ...
+    # Subtest: builds a valid shields.io badge URL for prefixed prerelease tags
+    ok 6 - builds a valid shields.io badge URL for prefixed prerelease tags
+      ---
+      duration_ms: 0.259397
+      ...
+    1..6
+ok 12 - release badge version normalization
+  ---
+  duration_ms: 8.990634
+  type: 'suite'
+  ...
+# Subtest: setup-npm version requirements
+    # Subtest: compares semantic versions numerically
+    ok 1 - compares semantic versions numerically
+      ---
+      duration_ms: 0.85792
+      ...
+    # Subtest: requires npm 11.5.1 or later
+    ok 2 - requires npm 11.5.1 or later
+      ---
+      duration_ms: 0.15371
+      ...
+    # Subtest: requires Node.js 22.14.0 or later
+    ok 3 - requires Node.js 22.14.0 or later
+      ---
+      duration_ms: 0.165667
+      ...
+    # Subtest: selects the latest npm 11 tarball that satisfies trusted publishing
+    ok 4 - selects the latest npm 11 tarball that satisfies trusted publishing
+      ---
+      duration_ms: 0.299047
+      ...
+    1..4
+ok 13 - setup-npm version requirements
+  ---
+  duration_ms: 3.837751
+  type: 'suite'
+  ...
+# Subtest: tag prefix logic
+    # Subtest: defaults to "v" prefix (backward compatible)
+    ok 1 - defaults to "v" prefix (backward compatible)
+      ---
+      duration_ms: 3.06052
+      ...
+    # Subtest: supports "js-v" prefix for multi-language repos
+    ok 2 - supports "js-v" prefix for multi-language repos
+      ---
+      duration_ms: 0.202954
+      ...
+    # Subtest: supports "rust-v" prefix
+    ok 3 - supports "rust-v" prefix
+      ---
+      duration_ms: 0.149173
+      ...
+    # Subtest: supports empty prefix
+    ok 4 - supports empty prefix
+      ---
+      duration_ms: 0.133018
+      ...
+    # Subtest: works with pre-release versions
+    ok 5 - works with pre-release versions
+      ---
+      duration_ms: 0.129172
+      ...
+    1..5
+ok 14 - tag prefix logic
+  ---
+  duration_ms: 5.660361
+  type: 'suite'
+  ...
+# Subtest: universal React example app
+    # Subtest: defines the expected app package and build targets
+    ok 1 - defines the expected app package and build targets
+      ---
+      duration_ms: 2.838017
+      ...
+    # Subtest: renders a visual UI using the package add and multiply functions
+    ok 2 - renders a visual UI using the package add and multiply functions
+      ---
+      duration_ms: 0.445335
+      ...
+    # Subtest: shares the Vite build output with Capacitor and GitHub Pages
+    ok 3 - shares the Vite build output with Capacitor and GitHub Pages
+      ---
+      duration_ms: 0.213268
+      ...
+    # Subtest: adds root scripts and a workflow for web, desktop, and mobile checks
+    ok 4 - adds root scripts and a workflow for web, desktop, and mobile checks
+      ---
+      duration_ms: 0.219207
+      ...
+    # Subtest: documents local validation without store credentials
+    ok 5 - documents local validation without store credentials
+      ---
+      duration_ms: 0.165878
+      ...
+    1..5
+ok 15 - universal React example app
+  ---
+  duration_ms: 11.404677
+  type: 'suite'
+  ...
+1..15
+# tests 61
+# suites 15
+# pass 61
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 742.820996

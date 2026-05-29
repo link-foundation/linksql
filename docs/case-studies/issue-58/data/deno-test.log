@@ -1,0 +1,68 @@
+running 1 test from ./tests/check-file-line-limits.test.js
+defines a warning band below the hard limit ... ok (0ms)
+running 4 tests from ./tests/ci-timeouts.test.js
+sets timeout-minutes for every release workflow job ... ok (7ms)
+sets timeout-minutes for every link workflow job ... ok (0ms)
+parses workflow files checked out with Windows line endings ... ok (0ms)
+caps individual Node.js and Bun tests at 30 seconds ... ok (0ms)
+running 5 tests from ./tests/create-github-release.test.js
+parses language from CLI arguments and environment defaults ... ok (0ms)
+builds a human-readable release name from a language-prefixed tag ... ok (0ms)
+uses gh api and reports successful creation only for exit code 0 ... ok (0ms)
+throws when gh api exits non-zero with an unexpected error ... ok (0ms)
+treats already_exists as an idempotent gh api result ... ok (0ms)
+running 8 tests from ./tests/docker-publish.test.js
+adds a Docker publish job downstream of npm release jobs ... ok (9ms)
+waits for the exact npm version before publishing Docker tags ... ok (0ms)
+uses Docker official GitHub Actions with DOCKERHUB_TOKEN authentication ... ok (0ms)
+keeps Docker publishing disabled until DOCKERHUB_IMAGE is configured ... ok (0ms)
+reports missing Docker Hub credentials when publishing is enabled ... ok (0ms)
+accepts complete Docker Hub configuration without exposing the token ... ok (0ms)
+parses release wait options ... ok (0ms)
+retries until npm reports the requested version ... ok (0ms)
+running 6 tests from ./tests/index.test.js
+should add two positive numbers ... ok (0ms)
+should add negative numbers ... ok (0ms)
+should add zero ... ok (0ms)
+should multiply two positive numbers ... ok (0ms)
+should multiply by zero ... ok (0ms)
+should multiply negative numbers ... ok (0ms)
+running 5 tests from ./tests/package-info.test.js
+reads scoped package names and versions from package.json content ... ok (0ms)
+formats npm package specifiers from the derived package name ... ok (0ms)
+formats changeset headers from the derived package name ... ok (0ms)
+matches changesets for the derived package name only ... ok (0ms)
+reports missing package names clearly ... ok (0ms)
+running 5 tests from ./tests/package-metadata.test.js
+uses the real link-foundation example package name ... ok (1ms)
+defines a globally installable CLI command ... ok (0ms)
+runs package functions through the CLI command ... ok (0ms)
+runs when invoked through an npm-style bin symlink ... ok (0ms)
+publishes only the package runtime surface ... ok (0ms)
+running 6 tests from ./tests/release-badge.test.js
+strips a plain v prefix for backward compatibility ... ok (1ms)
+strips a js-v prefix from multi-language release tags ... ok (0ms)
+strips a rust-v prefix from multi-language release tags ... ok (0ms)
+escapes hyphens in prerelease versions for shields.io static badge paths ... ok (0ms)
+builds a valid shields.io badge URL for prefixed tags ... ok (0ms)
+builds a valid shields.io badge URL for prefixed prerelease tags ... ok (0ms)
+running 4 tests from ./tests/setup-npm.test.js
+compares semantic versions numerically ... ok (0ms)
+requires npm 11.5.1 or later ... ok (0ms)
+requires Node.js 22.14.0 or later ... ok (0ms)
+selects the latest npm 11 tarball that satisfies trusted publishing ... ok (0ms)
+running 5 tests from ./tests/tag-prefix.test.js
+defaults to "v" prefix (backward compatible) ... ok (0ms)
+supports "js-v" prefix for multi-language repos ... ok (0ms)
+supports "rust-v" prefix ... ok (0ms)
+supports empty prefix ... ok (0ms)
+works with pre-release versions ... ok (0ms)
+running 5 tests from ./tests/universal-app.test.js
+defines the expected app package and build targets ... ok (0ms)
+renders a visual UI using the package add and multiply functions ... ok (0ms)
+shares the Vite build output with Capacitor and GitHub Pages ... ok (0ms)
+adds root scripts and a workflow for web, desktop, and mobile checks ... ok (7ms)
+documents local validation without store credentials ... ok (0ms)
+
+ok | 54 passed | 0 failed (1s)
+

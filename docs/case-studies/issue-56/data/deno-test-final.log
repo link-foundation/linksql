@@ -1,0 +1,363 @@
+Initialize eslint@9.39.4
+Initialize eslint-plugin-prettier@5.5.5
+Initialize lint-staged@16.4.0
+Initialize husky@9.1.7
+Initialize test-anywhere@0.8.50
+Initialize prettier@3.8.3
+Initialize jscpd@4.1.0
+Initialize @changesets/cli@2.31.0
+Initialize eslint-config-prettier@10.1.8
+Initialize @eslint/js@9.39.4
+Initialize esutils@2.0.3
+Initialize @eslint-community/regexpp@4.12.2
+Initialize @types/estree@1.0.9
+Initialize natural-compare@1.4.0
+Initialize esquery@1.7.0
+Initialize find-up@5.0.0
+Initialize imurmurhash@0.1.4
+Initialize @eslint/config-helpers@0.4.2
+Initialize fast-deep-equal@3.1.3
+Initialize ignore@5.3.2
+Initialize eslint-visitor-keys@4.2.1
+Initialize json-stable-stringify-without-jsonify@1.0.1
+Initialize @eslint/config-array@0.21.2
+Initialize chalk@4.1.2
+Initialize espree@10.4.0
+Initialize @humanwhocodes/module-importer@1.0.1
+Initialize @humanfs/node@0.16.8
+Initialize is-glob@4.0.3
+Initialize ajv@6.15.0
+Initialize escape-string-regexp@4.0.0
+Initialize @eslint/core@0.17.0
+Initialize eslint-scope@8.4.0
+Initialize glob-parent@6.0.2
+Initialize cross-spawn@7.0.6
+Initialize lodash.merge@4.6.2
+Initialize optionator@0.9.4
+Initialize @eslint/eslintrc@3.3.5
+Initialize @eslint/plugin-kit@0.4.1
+Initialize file-entry-cache@8.0.0
+Initialize minimatch@3.1.5
+Initialize @eslint-community/eslint-utils@4.9.1
+Initialize @humanwhocodes/retry@0.4.3
+Initialize debug@4.4.3
+Initialize prettier-linter-helpers@1.0.1
+Initialize synckit@0.11.12
+Initialize yaml@2.9.0
+Initialize picomatch@4.0.4
+Initialize tinyexec@1.1.2
+Initialize commander@14.0.3
+Initialize string-argv@0.3.2
+Initialize listr2@9.0.5
+Initialize jscpd-sarif-reporter@4.1.0
+Initialize commander@5.1.0
+Initialize @jscpd/core@4.1.0
+Initialize fs-extra@11.3.5
+Initialize @jscpd/finder@4.1.0
+Initialize @jscpd/badge-reporter@4.1.0
+Initialize @jscpd/html-reporter@4.1.0
+Initialize @jscpd/tokenizer@4.1.0
+Initialize colors@1.4.0
+Initialize @changesets/get-dependents-graph@2.1.4
+Initialize @changesets/should-skip-package@0.1.2
+Initialize semver@7.8.0
+Initialize picocolors@1.1.1
+Initialize @changesets/apply-release-plan@7.1.1
+Initialize @changesets/read@0.6.7
+Initialize @manypkg/get-packages@1.1.3
+Initialize fs-extra@7.0.1
+Initialize resolve-from@5.0.0
+Initialize @changesets/write@0.4.0
+Initialize @changesets/git@3.0.4
+Initialize @changesets/pre@2.0.2
+Initialize term-size@2.2.1
+Initialize mri@1.2.0
+Initialize ansi-colors@4.1.3
+Initialize @changesets/assemble-release-plan@6.0.10
+Initialize @changesets/types@6.1.0
+Initialize @inquirer/external-editor@1.0.3
+Initialize @changesets/errors@0.2.0
+Initialize spawndamnit@3.0.1
+Initialize @changesets/config@3.1.4
+Initialize @changesets/changelog-git@0.2.1
+Initialize @changesets/get-release-plan@4.0.16
+Initialize @changesets/logger@0.1.1
+Initialize enquirer@2.4.1
+Initialize package-manager-detector@0.2.11
+Initialize estraverse@5.3.0
+Initialize path-exists@4.0.0
+Initialize locate-path@6.0.0
+Initialize @eslint/object-schema@2.1.7
+Initialize supports-color@7.2.0
+Initialize ansi-styles@4.3.0
+Initialize acorn-jsx@5.3.2
+Initialize acorn@8.16.0
+Initialize @humanfs/types@0.15.0
+Initialize @humanfs/core@0.19.2
+Initialize is-extglob@2.1.1
+Initialize fast-json-stable-stringify@2.1.0
+Initialize json-schema-traverse@0.4.1
+Initialize uri-js@4.4.1
+Initialize @types/json-schema@7.0.15
+Initialize esrecurse@4.3.0
+Initialize path-key@3.1.1
+Initialize shebang-command@2.0.0
+Initialize which@2.0.2
+Initialize levn@0.4.1
+Initialize word-wrap@1.2.5
+Initialize fast-levenshtein@2.0.6
+Initialize prelude-ls@1.2.1
+Initialize type-check@0.4.0
+Initialize deep-is@0.1.4
+Initialize import-fresh@3.3.1
+Initialize strip-json-comments@3.1.1
+Initialize globals@14.0.0
+Initialize js-yaml@4.1.1
+Initialize flat-cache@4.0.1
+Initialize brace-expansion@1.1.14
+Initialize eslint-visitor-keys@3.4.3
+Initialize ms@2.1.3
+Initialize fast-diff@1.3.0
+Initialize @pkgr/core@0.2.9
+Initialize log-update@6.1.0
+Initialize wrap-ansi@9.0.2
+Initialize rfdc@1.4.1
+Initialize eventemitter3@5.0.4
+Initialize colorette@2.0.20
+Initialize cli-truncate@5.2.0
+Initialize node-sarif-builder@3.4.0
+Initialize universalify@2.0.1
+Initialize jsonfile@6.2.1
+Initialize graceful-fs@4.2.11
+Initialize bytes@3.1.2
+Initialize cli-table3@0.6.5
+Initialize pug@3.0.4
+Initialize markdown-table@2.0.0
+Initialize blamer@1.0.7
+Initialize fast-glob@3.3.3
+Initialize badgen@3.3.2
+Initialize prismjs@1.30.0
+Initialize detect-indent@6.1.0
+Initialize outdent@0.5.0
+Initialize lodash.startcase@4.4.0
+Initialize prettier@2.8.8
+Initialize @changesets/get-version-range-type@0.4.0
+Initialize p-filter@2.1.0
+Initialize @changesets/parse@0.4.3
+Initialize fs-extra@8.1.0
+Initialize @babel/runtime@7.29.2
+Initialize read-yaml-file@1.1.0
+Initialize globby@11.1.0
+Initialize @changesets/types@4.1.0
+Initialize @manypkg/find-root@1.1.0
+Initialize jsonfile@4.0.0
+Initialize universalify@0.1.2
+Initialize human-id@4.1.3
+Initialize micromatch@4.0.8
+Initialize is-subdir@1.2.0
+Initialize iconv-lite@0.7.2
+Initialize chardet@2.1.1
+Initialize extendable-error@0.1.7
+Initialize signal-exit@4.1.0
+Initialize strip-ansi@6.0.1
+Initialize quansync@0.2.11
+Initialize p-locate@5.0.0
+Initialize has-flag@4.0.0
+Initialize color-convert@2.0.1
+Initialize punycode@2.3.1
+Initialize shebang-regex@3.0.0
+Initialize isexe@2.0.0
+Initialize resolve-from@4.0.0
+Initialize parent-module@1.0.1
+Initialize argparse@2.0.1
+Initialize keyv@4.5.4
+Initialize flatted@3.4.2
+Initialize concat-map@0.0.1
+Initialize balanced-match@1.0.2
+Initialize slice-ansi@7.1.2
+Initialize cli-cursor@5.0.0
+Initialize ansi-escapes@7.3.0
+Initialize strip-ansi@7.2.0
+Initialize ansi-styles@6.2.3
+Initialize string-width@7.2.0
+Initialize string-width@8.2.1
+Initialize slice-ansi@8.0.0
+Initialize @types/sarif@2.1.7
+Initialize string-width@4.2.3
+Initialize @colors/colors@1.5.0
+Initialize pug-strip-comments@2.0.0
+Initialize pug-load@3.0.0
+Initialize pug-runtime@3.0.1
+Initialize pug-filters@4.0.0
+Initialize pug-linker@4.0.0
+Initialize pug-code-gen@3.0.4
+Initialize pug-lexer@5.0.1
+Initialize pug-parser@6.0.0
+Initialize repeat-string@1.6.1
+Initialize execa@4.1.0
+Initialize @nodelib/fs.stat@2.0.5
+Initialize @nodelib/fs.walk@1.2.8
+Initialize glob-parent@5.1.2
+Initialize merge2@1.4.1
+Initialize p-map@2.1.0
+Initialize pify@4.0.1
+Initialize js-yaml@3.14.2
+Initialize strip-bom@3.0.0
+Initialize slash@3.0.0
+Initialize array-union@2.1.0
+Initialize dir-glob@3.0.1
+Initialize @types/node@12.20.55
+Initialize find-up@4.1.0
+Initialize braces@3.0.3
+Initialize picomatch@2.3.2
+Initialize better-path-resolve@1.0.0
+Initialize safer-buffer@2.1.2
+Initialize ansi-regex@5.0.1
+Initialize p-limit@3.1.0
+Initialize color-name@1.1.4
+Initialize callsites@3.1.0
+Initialize json-buffer@3.0.1
+Initialize is-fullwidth-code-point@5.1.0
+Initialize restore-cursor@5.1.0
+Initialize environment@1.1.0
+Initialize ansi-regex@6.2.2
+Initialize get-east-asian-width@1.6.0
+Initialize emoji-regex@10.6.0
+Initialize is-fullwidth-code-point@3.0.0
+Initialize emoji-regex@8.0.0
+Initialize pug-error@2.1.0
+Initialize object-assign@4.1.1
+Initialize pug-walk@2.0.0
+Initialize resolve@1.22.12
+Initialize constantinople@4.0.1
+Initialize jstransformer@1.0.0
+Initialize void-elements@3.1.0
+Initialize js-stringify@1.0.2
+Initialize with@7.0.2
+Initialize pug-attrs@3.0.0
+Initialize doctypes@1.1.0
+Initialize character-parser@2.2.0
+Initialize is-expression@4.0.0
+Initialize token-stream@1.0.0
+Initialize merge-stream@2.0.0
+Initialize signal-exit@3.0.7
+Initialize get-stream@5.2.0
+Initialize strip-final-newline@2.0.0
+Initialize npm-run-path@4.0.1
+Initialize onetime@5.1.2
+Initialize human-signals@1.1.1
+Initialize is-stream@2.0.1
+Initialize @nodelib/fs.scandir@2.1.5
+Initialize fastq@1.20.1
+Initialize argparse@1.0.10
+Initialize esprima@4.0.1
+Initialize path-type@4.0.0
+Initialize locate-path@5.0.0
+Initialize fill-range@7.1.1
+Initialize is-windows@1.0.2
+Initialize yocto-queue@0.1.0
+Initialize onetime@7.0.0
+Initialize path-parse@1.0.7
+Initialize es-errors@1.3.0
+Initialize is-core-module@2.16.2
+Initialize supports-preserve-symlinks-flag@1.0.0
+Initialize @babel/types@7.29.0
+Initialize @babel/parser@7.29.3
+Initialize is-promise@2.2.2
+Initialize promise@7.3.1
+Initialize assert-never@1.4.0
+Initialize babel-walk@3.0.0-canary-5
+Initialize is-regex@1.2.1
+Initialize acorn@7.4.1
+Initialize pump@3.0.4
+Initialize mimic-fn@2.1.0
+Initialize run-parallel@1.2.0
+Initialize reusify@1.1.0
+Initialize sprintf-js@1.0.3
+Initialize p-locate@4.1.0
+Initialize to-regex-range@5.0.1
+Initialize mimic-function@5.0.1
+Initialize hasown@2.0.3
+Initialize @babel/helper-validator-identifier@7.28.5
+Initialize @babel/helper-string-parser@7.27.1
+Initialize asap@2.0.6
+Initialize call-bound@1.0.4
+Initialize gopd@1.2.0
+Initialize has-tostringtag@1.0.2
+Initialize end-of-stream@1.4.5
+Initialize once@1.4.0
+Initialize queue-microtask@1.2.3
+Initialize p-limit@2.3.0
+Initialize is-number@7.0.0
+Initialize function-bind@1.1.2
+Initialize call-bind-apply-helpers@1.0.2
+Initialize get-intrinsic@1.3.0
+Initialize has-symbols@1.1.0
+Initialize wrappy@1.0.2
+Initialize p-try@2.2.0
+Initialize es-object-atoms@1.1.1
+Initialize es-define-property@1.0.1
+Initialize get-proto@1.0.1
+Initialize math-intrinsics@1.1.0
+Initialize dunder-proto@1.0.1
+running 1 test from ./tests/check-file-line-limits.test.js
+defines a warning band below the hard limit ... ok (5ms)
+running 4 tests from ./tests/ci-timeouts.test.js
+sets timeout-minutes for every release workflow job ... ok (14ms)
+sets timeout-minutes for every link workflow job ... ok (0ms)
+parses workflow files checked out with Windows line endings ... ok (0ms)
+caps individual Node.js and Bun tests at 30 seconds ... ok (0ms)
+running 5 tests from ./tests/create-github-release.test.js
+parses language from CLI arguments and environment defaults ... ok (0ms)
+builds a human-readable release name from a language-prefixed tag ... ok (1ms)
+uses gh api and reports successful creation only for exit code 0 ... ok (0ms)
+throws when gh api exits non-zero with an unexpected error ... ok (0ms)
+treats already_exists as an idempotent gh api result ... ok (0ms)
+running 8 tests from ./tests/docker-publish.test.js
+adds a Docker publish job downstream of npm release jobs ... ok (5ms)
+waits for the exact npm version before publishing Docker tags ... ok (0ms)
+uses Docker official GitHub Actions with DOCKERHUB_TOKEN authentication ... ok (0ms)
+keeps Docker publishing disabled until DOCKERHUB_IMAGE is configured ... ok (0ms)
+reports missing Docker Hub credentials when publishing is enabled ... ok (1ms)
+accepts complete Docker Hub configuration without exposing the token ... ok (0ms)
+parses release wait options ... ok (0ms)
+retries until npm reports the requested version ... ok (0ms)
+running 6 tests from ./tests/index.test.js
+should add two positive numbers ... ok (0ms)
+should add negative numbers ... ok (0ms)
+should add zero ... ok (0ms)
+should multiply two positive numbers ... ok (0ms)
+should multiply by zero ... ok (0ms)
+should multiply negative numbers ... ok (0ms)
+running 5 tests from ./tests/package-info.test.js
+reads scoped package names and versions from package.json content ... ok (0ms)
+formats npm package specifiers from the derived package name ... ok (0ms)
+formats changeset headers from the derived package name ... ok (0ms)
+matches changesets for the derived package name only ... ok (0ms)
+reports missing package names clearly ... ok (0ms)
+running 6 tests from ./tests/release-badge.test.js
+strips a plain v prefix for backward compatibility ... ok (0ms)
+strips a js-v prefix from multi-language release tags ... ok (0ms)
+strips a rust-v prefix from multi-language release tags ... ok (0ms)
+escapes hyphens in prerelease versions for shields.io static badge paths ... ok (0ms)
+builds a valid shields.io badge URL for prefixed tags ... ok (0ms)
+builds a valid shields.io badge URL for prefixed prerelease tags ... ok (0ms)
+running 4 tests from ./tests/setup-npm.test.js
+compares semantic versions numerically ... ok (0ms)
+requires npm 11.5.1 or later ... ok (0ms)
+requires Node.js 22.14.0 or later ... ok (0ms)
+selects the latest npm 11 tarball that satisfies trusted publishing ... ok (0ms)
+running 5 tests from ./tests/tag-prefix.test.js
+defaults to "v" prefix (backward compatible) ... ok (0ms)
+supports "js-v" prefix for multi-language repos ... ok (0ms)
+supports "rust-v" prefix ... ok (0ms)
+supports empty prefix ... ok (0ms)
+works with pre-release versions ... ok (0ms)
+running 5 tests from ./tests/universal-app.test.js
+defines the expected app package and build targets ... ok (1ms)
+renders a visual UI using the package add and multiply functions ... ok (0ms)
+shares the Vite build output with Capacitor and GitHub Pages ... ok (0ms)
+adds root scripts and a workflow for web, desktop, and mobile checks ... ok (5ms)
+documents local validation without store credentials ... ok (0ms)
+
+ok | 49 passed | 0 failed (762ms)

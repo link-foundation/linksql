@@ -1,0 +1,23 @@
+
+> my-package@0.9.0 check
+> npm run lint && npm run format:check && npm run check:duplication
+
+
+> my-package@0.9.0 lint
+> eslint .
+
+
+> my-package@0.9.0 format:check
+> prettier --check .
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> my-package@0.9.0 check:duplication
+> jscpd .
+
+[3m[90mtime[39m[23m: 0.325ms
+
+💡 Auto-refactor with AI: npx skills add kucherenko/jscpd
+🎩 New: Gangsta Agents — discipline your AI coding → gangsta.page
+💖 Sponsor jscpd → https://opencollective.com/jscpd

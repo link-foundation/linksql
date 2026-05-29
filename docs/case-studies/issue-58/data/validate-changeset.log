@@ -1,0 +1,11 @@
+Validating changesets added by this PR...
+Detected single-language repository (package.json in root)
+Package: @link-foundation/example-package-name
+Warning: Could not determine PR diff, checking all changesets in directory
+Found 1 changeset file(s) added by this PR
+Added changesets:
+  - example-package-release.md
+Validating changeset: .changeset/example-package-release.md
+Changeset validation passed
+   Type: patch
+   Description: Publish the template as the real link-foundation example package and add the globally installable CLI entry point.

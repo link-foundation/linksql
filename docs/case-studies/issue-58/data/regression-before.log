@@ -1,0 +1,128 @@
+TAP version 13
+# Subtest: publishable package metadata
+    # Subtest: uses the real link-foundation example package name
+    not ok 1 - uses the real link-foundation example package name
+      ---
+      duration_ms: 0.816419
+      location: '/tmp/gh-issue-solver-1778599088699/node_modules/test-anywhere/src/index.js:174:12'
+      failureType: 'testCodeFailure'
+      error: 'Expected "my-package" to be "@link-foundation/example-package-name"'
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        Object.toBe (file:///tmp/gh-issue-solver-1778599088699/node_modules/test-anywhere/src/index.js:391:15)
+        TestContext.<anonymous> (file:///tmp/gh-issue-solver-1778599088699/tests/package-metadata.test.js:9:30)
+        Test.runInAsyncScope (node:async_hooks:206:9)
+        Test.run (node:internal/test_runner/test:796:25)
+        Test.start (node:internal/test_runner/test:702:17)
+        node:internal/test_runner/test:1133:71
+        node:internal/per_context/primordials:482:82
+        new Promise (<anonymous>)
+        new SafePromise (node:internal/per_context/primordials:450:29)
+        node:internal/per_context/primordials:482:9
+      ...
+    # Subtest: defines a globally installable CLI command
+    not ok 2 - defines a globally installable CLI command
+      ---
+      duration_ms: 0.178237
+      location: '/tmp/gh-issue-solver-1778599088699/node_modules/test-anywhere/src/index.js:174:12'
+      failureType: 'testCodeFailure'
+      error: 'Expected undefined to equal {"example-package-name":"./bin/example-package-name.js"}'
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        Object.toEqual (file:///tmp/gh-issue-solver-1778599088699/node_modules/test-anywhere/src/index.js:399:15)
+        TestContext.<anonymous> (file:///tmp/gh-issue-solver-1778599088699/tests/package-metadata.test.js:17:29)
+        Test.runInAsyncScope (node:async_hooks:206:9)
+        Test.run (node:internal/test_runner/test:796:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:526:18)
+        Test.postRun (node:internal/test_runner/test:889:19)
+        Test.run (node:internal/test_runner/test:835:12)
+        async Promise.all (index 0)
+        async Suite.run (node:internal/test_runner/test:1135:7)
+        async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+      ...
+    # Subtest: publishes only the package runtime surface
+    not ok 3 - publishes only the package runtime surface
+      ---
+      duration_ms: 0.101773
+      location: '/tmp/gh-issue-solver-1778599088699/node_modules/test-anywhere/src/index.js:174:12'
+      failureType: 'testCodeFailure'
+      error: 'Expected undefined to equal ["bin/","src/","CHANGELOG.md","LICENSE","README.md"]'
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        Object.toEqual (file:///tmp/gh-issue-solver-1778599088699/node_modules/test-anywhere/src/index.js:399:15)
+        TestContext.<anonymous> (file:///tmp/gh-issue-solver-1778599088699/tests/package-metadata.test.js:24:31)
+        Test.runInAsyncScope (node:async_hooks:206:9)
+        Test.run (node:internal/test_runner/test:796:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:526:18)
+        Test.postRun (node:internal/test_runner/test:889:19)
+        Test.run (node:internal/test_runner/test:835:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:526:7)
+      ...
+    1..3
+not ok 1 - publishable package metadata
+  ---
+  duration_ms: 1.999094
+  type: 'suite'
+  location: '/tmp/gh-issue-solver-1778599088699/node_modules/test-anywhere/src/index.js:205:12'
+  failureType: 'subtestsFailed'
+  error: '3 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: universal React example app
+    # Subtest: defines the expected app package and build targets
+    ok 1 - defines the expected app package and build targets
+      ---
+      duration_ms: 1.995749
+      ...
+    # Subtest: renders a visual UI using the package add and multiply functions
+    ok 2 - renders a visual UI using the package add and multiply functions
+      ---
+      duration_ms: 0.191436
+      ...
+    # Subtest: shares the Vite build output with Capacitor and GitHub Pages
+    ok 3 - shares the Vite build output with Capacitor and GitHub Pages
+      ---
+      duration_ms: 0.223294
+      ...
+    # Subtest: adds root scripts and a workflow for web, desktop, and mobile checks
+    not ok 4 - adds root scripts and a workflow for web, desktop, and mobile checks
+      ---
+      duration_ms: 0.397684
+      location: '/tmp/gh-issue-solver-1778599088699/node_modules/test-anywhere/src/index.js:174:12'
+      failureType: 'testCodeFailure'
+      error: 'Expected "name: Example app\\n\\non:\\n  pull_request:\\n    types: [opened, synchronize, reopened]\\n    paths:\\n      - \'examples/universal-app/**\'\\n      - \'src/**\'\\n      - \'package.json\'\\n      - \'package-lock.json\'\\n      - \'.github/workflows/example-app.yml\'\\n  push:\\n    branches:\\n      - main\\n    paths:\\n      - \'examples/universal-app/**\'\\n      - \'src/**\'\\n      - \'package.json\'\\n      - \'package-lock.json\'\\n      - \'.github/workflows/example-app.yml\'\\n  workflow_dispatch:\\n\\npermissions:\\n  contents: read\\n\\nconcurrency:\\n  group: ${{ github.workflow }}-${{ github.ref }}\\n  cancel-in-progress: ${{ github.ref == \'refs/heads/main\' }}\\n\\njobs:\\n  web-build:\\n    name: Build web app\\n    runs-on: ubuntu-latest\\n    timeout-minutes: 10\\n    steps:\\n      - uses: actions/checkout@v6\\n\\n      - name: Setup Node.js\\n        uses: actions/setup-node@v6\\n        with:\\n          node-version: \'24.x\'\\n          cache: npm\\n          cache-dependency-path: examples/universal-app/package-lock.json\\n\\n      - name: Install app dependencies\\n        run: npm ci --prefix examples/universal-app\\n\\n      - name: Build app\\n        run: npm run example:web:build\\n        env:\\n          GITHUB_PAGES: ${{ github.event_name == \'push\' && github.ref == \'refs/heads/main\' }}\\n          VITE_REPOSITORY_URL: https://github.com/${{ github.repository }}\\n\\n      - name: Upload web build artifact\\n        uses: actions/upload-artifact@v7\\n        with:\\n          name: universal-example-web\\n          path: examples/universal-app/dist\\n          if-no-files-found: error\\n\\n      - name: Upload GitHub Pages artifact\\n        if: github.event_name == \'push\' && github.ref == \'refs/heads/main\'\\n        uses: actions/upload-pages-artifact@v5\\n        with:\\n          path: examples/universal-app/dist\\n\\n  pages-deploy:\\n    name: Deploy GitHub Pages\\n    needs: [web-build]\\n    if: github.event_name == \'push\' && github.ref == \'refs/heads/main\'\\n    runs-on: ubuntu-latest\\n    timeout-minutes: 10\\n    permissions:\\n      pages: write\\n      id-token: write\\n    environment:\\n      name: github-pages\\n      url: ${{ steps.deployment.outputs.page_url }}\\n    steps:\\n      - name: Deploy Pages artifact\\n        id: deployment\\n        uses: actions/deploy-pages@v5\\n\\n  desktop-package:\\n    name: Package desktop app (${{ matrix.os }})\\n    runs-on: ${{ matrix.os }}\\n    timeout-minutes: 20\\n    strategy:\\n      fail-fast: false\\n      matrix:\\n        os: [ubuntu-latest, macos-latest, windows-latest]\\n    steps:\\n      - uses: actions/checkout@v6\\n\\n      - name: Setup Node.js\\n        uses: actions/setup-node@v6\\n        with:\\n          node-version: \'24.x\'\\n          cache: npm\\n          cache-dependency-path: examples/universal-app/package-lock.json\\n\\n      - name: Install app dependencies\\n        run: npm ci --prefix examples/universal-app\\n\\n      - name: Package Electron app\\n        run: npm run example:desktop:package\\n        env:\\n          VITE_REPOSITORY_URL: https://github.com/${{ github.repository }}\\n\\n      - name: Upload desktop package\\n        uses: actions/upload-artifact@v7\\n        with:\\n          name: universal-example-desktop-${{ matrix.os }}\\n          path: examples/universal-app/out\\n          if-no-files-found: error\\n\\n  android-build:\\n    name: Build Android app\\n    if: github.event_name == \'workflow_dispatch\' && vars.EXAMPLE_APP_ENABLE_ANDROID_BUILD == \'true\'\\n    runs-on: ubuntu-latest\\n    timeout-minutes: 30\\n    steps:\\n      - uses: actions/checkout@v6\\n\\n      - name: Setup Node.js\\n        uses: actions/setup-node@v6\\n        with:\\n          node-version: \'24.x\'\\n          cache: npm\\n          cache-dependency-path: examples/universal-app/package-lock.json\\n\\n      - name: Setup Java\\n        uses: actions/setup-java@v5\\n        with:\\n          distribution: temurin\\n          java-version: \'21\'\\n\\n      - name: Setup Android SDK\\n        uses: android-actions/setup-android@v3\\n\\n      - name: Install app dependencies\\n        run: npm ci --prefix examples/universal-app\\n\\n      - name: Add Android project\\n        run: npm --prefix examples/universal-app run mobile:android:add\\n\\n      - name: Build Android project\\n        run: npm --prefix examples/universal-app run mobile:android:build\\n\\n      - name: Upload Android output\\n        uses: actions/upload-artifact@v7\\n        with:\\n          name: universal-example-android\\n          path: |\\n            examples/universal-app/android/app/build/outputs/**/*.apk\\n            examples/universal-app/android/app/build/outputs/**/*.aab\\n          if-no-files-found: warn\\n\\n  ios-build:\\n    name: Build iOS app\\n    if: github.event_name == \'workflow_dispatch\' && vars.EXAMPLE_APP_ENABLE_IOS_BUILD == \'true\'\\n    runs-on: macos-latest\\n    timeout-minutes: 30\\n    steps:\\n      - uses: actions/checkout@v6\\n\\n      - name: Setup Node.js\\n        uses: actions/setup-node@v6\\n        with:\\n          node-version: \'24.x\'\\n          cache: npm\\n          cache-dependency-path: examples/universal-app/package-lock.json\\n\\n      - name: Install app dependencies\\n        run: npm ci --prefix examples/universal-app\\n\\n      - name: Add iOS project\\n        run: npm --prefix examples/universal-app run mobile:ios:add\\n\\n      - name: Build iOS project\\n        run: npm --prefix examples/universal-app run mobile:ios:build\\n" to contain "actions/configure-pages@v6"'
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        Object.toContain (file:///tmp/gh-issue-solver-1778599088699/node_modules/test-anywhere/src/index.js:566:15)
+        TestContext.<anonymous> (file:///tmp/gh-issue-solver-1778599088699/tests/universal-app.test.js:88:22)
+        Test.runInAsyncScope (node:async_hooks:206:9)
+        Test.run (node:internal/test_runner/test:796:25)
+        Suite.processPendingSubtests (node:internal/test_runner/test:526:18)
+        Test.postRun (node:internal/test_runner/test:889:19)
+        Test.run (node:internal/test_runner/test:835:12)
+        async Suite.processPendingSubtests (node:internal/test_runner/test:526:7)
+      ...
+    # Subtest: documents local validation without store credentials
+    ok 5 - documents local validation without store credentials
+      ---
+      duration_ms: 0.164416
+      ...
+    1..5
+not ok 2 - universal React example app
+  ---
+  duration_ms: 3.993072
+  type: 'suite'
+  location: '/tmp/gh-issue-solver-1778599088699/node_modules/test-anywhere/src/index.js:205:12'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..2
+# tests 8
+# suites 2
+# pass 4
+# fail 4
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 60.248274

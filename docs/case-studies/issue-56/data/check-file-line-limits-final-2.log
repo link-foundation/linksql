@@ -1,0 +1,39 @@
+Checking that all .mjs files are under 1500 lines...
+./docs/case-studies/issue-56/data/vk-bot-desktop-build-renderer.mjs: 48 lines
+./docs/case-studies/issue-3/original-format-release-notes.mjs: 212 lines
+./docs/case-studies/issue-23/data/hive-mind-check-version.mjs: 121 lines
+./docs/case-studies/issue-23/data/hive-mind-eslint.config.mjs: 86 lines
+./scripts/changeset-version.mjs: 75 lines
+./scripts/setup-npm.mjs: 265 lines
+./scripts/create-github-release.mjs: 217 lines
+./scripts/check-web-archive.mjs: 263 lines
+./scripts/check-changesets.mjs: 67 lines
+./scripts/detect-code-changes.mjs: 153 lines
+./scripts/check-version.mjs: 129 lines
+./scripts/format-release-notes.mjs: 230 lines
+./scripts/check-release-needed.mjs: 123 lines
+./scripts/format-github-release.mjs: 90 lines
+./scripts/format-release-notes-helpers.mjs: 26 lines
+./scripts/js-paths.mjs: 177 lines
+./scripts/validate-changeset.mjs: 276 lines
+./scripts/version-and-commit.mjs: 284 lines
+./scripts/check-docker-publish.mjs: 143 lines
+./scripts/wait-for-npm.mjs: 191 lines
+./scripts/merge-changesets.mjs: 274 lines
+./scripts/package-info.mjs: 97 lines
+./scripts/publish-to-npm.mjs: 325 lines
+./scripts/create-manual-changeset.mjs: 100 lines
+./scripts/instant-version-bump.mjs: 172 lines
+./experiments/test-detect-changes.mjs: 178 lines
+./experiments/test-format-major-changes.mjs: 49 lines
+./experiments/test-changeset-scripts.mjs: 303 lines
+./experiments/test-format-minor-changes.mjs: 52 lines
+./experiments/test-format-patch-changes.mjs: 46 lines
+./experiments/test-format-no-hash.mjs: 43 lines
+./experiments/test-check-release-needed.mjs: 104 lines
+./experiments/test-failure-detection.mjs: 143 lines
+
+Checking that .github/workflows/release.yml is under 1500 lines...
+.github/workflows/release.yml: 617 lines
+
+All checked files are within the 1500 line limit!
