@@ -4,20 +4,25 @@
  * Demonstrates the single substitution operation — `(restriction) (substitution)`
  * — driving create, read, update and delete against an in-memory database.
  *
+ * Every link is a doublet: `(index: source target)`. A relation like
+ * "alice loves bob" is therefore a *higher-order* link — its source is the link
+ * `(alice loves)` and its target is `bob`, written `((alice loves) bob)`.
+ *
  * Run with any runtime:
  * - Node.js: node examples/basic-usage.js
  * - Bun:     bun examples/basic-usage.js
  * - Deno:    deno run --allow-read examples/basic-usage.js
  */
 
-import { createDatabase } from '../src/index.js';
+import { createDatabase, encode } from '../src/index.js';
 
 const db = createDatabase();
 
 // CREATE: an empty restriction with one substitution creates a link.
-// Named references (alice, loves, bob) are auto-created as points first.
+// Named references (alice, loves, bob) are auto-created as points first, then
+// the nested link `(alice loves)` and finally the relation to `bob`.
 console.log('Create:');
-const created = db.query('() ((alice loves bob))');
+const created = db.query('() (((alice loves) bob))');
 console.log(`  operation = ${created.operation}`);
 console.log(`  store now holds ${db.count()} links`);
 console.log(`  ${db.toLino().split('\n').join('\n  ')}`);
@@ -26,18 +31,19 @@ console.log(`  ${db.toLino().split('\n').join('\n  ')}`);
 console.log('\nRead every link (($i: $s $t)):');
 const read = db.query('(($i: $s $t))');
 for (const row of read.matched) {
-  console.log(`  binding ${JSON.stringify(row.binding)}`);
+  // Links Notation is the data protocol: bindings travel as LiNo, not JSON.
+  console.log(`  binding ${encode(row.binding)}`);
 }
 
 // UPDATE: pairing a match with a new shape rewrites it in place, keeping its id.
-console.log('\nUpdate (alice loves bob) -> (alice loves carol):');
-const updated = db.query('((alice loves bob)) ((alice loves carol))');
+console.log('\nUpdate (alice loves) -> (alice trusts):');
+const updated = db.query('((alice loves)) ((alice trusts))');
 console.log(`  operation = ${updated.operation}`);
-console.log(`  updated = ${JSON.stringify(updated.updated)}`);
+console.log(`  updated = ${encode(updated.updated)}`);
 
 // DELETE: a trailing restriction with no substitution removes the match.
-console.log('\nDelete (alice loves carol):');
-const deleted = db.query('((alice loves carol)) ()');
+console.log('\nDelete (alice trusts):');
+const deleted = db.query('((alice trusts)) ()');
 console.log(`  operation = ${deleted.operation}`);
 console.log(`  store now holds ${db.count()} links`);
 
