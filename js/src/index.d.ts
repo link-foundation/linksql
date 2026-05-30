@@ -225,6 +225,17 @@ export class LinksQLServer {
 
 export function startServer(options?: ServerOptions): Promise<LinksQLServer>;
 
+/** The canonical content type for Links Notation payloads. */
+export const LINO_CONTENT_TYPE: 'application/lino';
+/** The opt-in content type for the JSON projection of a payload. */
+export const JSON_CONTENT_TYPE: 'application/json';
+/** Encode a JSON-shaped value as Links Notation text. */
+export function encode(value: unknown): string;
+/** Decode Links Notation text back into a JSON-shaped value. */
+export function decode(lino: string): unknown;
+/** Whether a caller's `Accept`/`Content-Type` header opts into JSON. */
+export function prefersJson(header: string | undefined): boolean;
+
 /** A handle for a live subscription stream. */
 export interface SubscriptionHandle {
   ready: Promise<void>;

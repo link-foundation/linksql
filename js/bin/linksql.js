@@ -15,7 +15,7 @@
 import { existsSync, readFileSync, writeFileSync, realpathSync } from 'node:fs';
 import { fileURLToPath, URL } from 'node:url';
 
-import { Database, LinksQLServer } from '../src/index.js';
+import { Database, LinksQLServer, encode } from '../src/index.js';
 
 /** Render the help text. */
 function usage() {
@@ -23,7 +23,7 @@ function usage() {
     'Usage: linksql <command> [options]',
     '',
     'Commands:',
-    '  query <lino>   Run a query; prints a JSON report',
+    '  query <lino>   Run a query; prints a Links Notation report',
     '  serve          Start the HTTP server (Ctrl-C to stop)',
     '  import <file>  Import LiNo from a file into the store',
     '  export         Print the whole store as canonical LiNo',
@@ -32,6 +32,7 @@ function usage() {
     '  --db <path>        LiNo file used as the persistent store',
     '  --port <n>         Port for `serve` (default 8080)',
     '  --host <host>      Host for `serve` (default 127.0.0.1)',
+    '  --json             Print the query report as JSON instead of LiNo',
     '  --no-auto-create   Do not auto-create unknown named references',
     '  --help, -h         Show this help',
     '  --version, -v      Show the package version',
@@ -51,6 +52,7 @@ function parseArgs(argv) {
     port: 8080,
     host: '127.0.0.1',
     autoCreate: true,
+    json: false,
     help: false,
     version: false,
   };
@@ -63,6 +65,8 @@ function parseArgs(argv) {
       options.port = Number(argv[(i += 1)]);
     } else if (arg === '--host') {
       options.host = argv[(i += 1)];
+    } else if (arg === '--json') {
+      options.json = true;
     } else if (arg === '--no-auto-create') {
       options.autoCreate = false;
     } else if (arg === '--help' || arg === '-h') {
@@ -103,7 +107,7 @@ function commandQuery(options, positionals, io) {
   const db = loadDatabase(options);
   const report = db.query(text);
   saveDatabase(db, options);
-  io.stdout(JSON.stringify(report, null, 2));
+  io.stdout(options.json ? JSON.stringify(report, null, 2) : encode(report));
   return 0;
 }
 

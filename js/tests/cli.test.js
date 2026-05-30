@@ -11,6 +11,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { existsSync, rmSync, writeFileSync } from 'node:fs';
 import { runCli } from '../bin/linksql.js';
+import { decode } from '../src/protocol.js';
 
 const isDenoRuntime = typeof Deno !== 'undefined';
 
@@ -43,9 +44,19 @@ describe('CLI', () => {
     expect(out[0]).toContain('Usage: linksql');
   });
 
-  it('runs a query and prints a JSON report', async () => {
+  it('runs a query and prints a Links Notation report', async () => {
     const { io, out } = capture();
     const code = await runCli(['query', '() ((1 1))'], io);
+    expect(code).toBe(0);
+    expect(out[0].startsWith('(')).toBe(true);
+    const report = decode(out[0]);
+    expect(report.operation).toBe('create');
+    expect(report.created.length).toBe(1);
+  });
+
+  it('prints a JSON report when --json is given', async () => {
+    const { io, out } = capture();
+    const code = await runCli(['query', '() ((1 1))', '--json'], io);
     expect(code).toBe(0);
     const report = JSON.parse(out[0]);
     expect(report.operation).toBe('create');

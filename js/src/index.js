@@ -46,6 +46,14 @@ export { LinksQLServer, startServer } from './server.js';
 
 export { LinksQLClient } from './client.js';
 
+export {
+  encode,
+  decode,
+  prefersJson,
+  LINO_CONTENT_TYPE,
+  JSON_CONTENT_TYPE,
+} from './protocol.js';
+
 import { Database } from './query.js';
 
 /**

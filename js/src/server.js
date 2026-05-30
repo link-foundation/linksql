@@ -6,12 +6,17 @@
  * dependencies — so the reference server stays as portable as the language
  * implementations it sits alongside.
  *
+ * Links Notation is the wire protocol. Every structured response is encoded as
+ * Links Notation text (content type `application/lino`); a client may opt into
+ * a JSON projection with `Accept: application/json`. Request bodies are read as
+ * Links Notation by default too.
+ *
  * Endpoints
  *   GET  /                status: name, version and link count
- *   POST /query           run a query (JSON `{ "query": "..." }` or raw LiNo)
- *   GET  /links           every stored link as JSON
+ *   POST /query           run a query (raw LiNo, or `((query "..."))`)
+ *   GET  /links           every stored link
  *   GET  /introspect      schema/introspection snapshot
- *   POST /import          bulk-import LiNo text, returns `{ imported }`
+ *   POST /import          bulk-import LiNo text, returns `((imported N))`
  *   GET  /export          the whole database as canonical LiNo text
  *   GET  /subscribe?pattern=...   Server-Sent Events stream of matching changes
  *
@@ -23,6 +28,13 @@
 import http from 'node:http';
 import { Database } from './query.js';
 import { Subscriptions } from './triggers.js';
+import {
+  encode,
+  decode,
+  LINO_CONTENT_TYPE,
+  JSON_CONTENT_TYPE,
+  prefersJson,
+} from './protocol.js';
 
 /** SSE keep-alive comment, sent once to flush headers and open the stream. */
 const SSE_OPEN = ': linksql stream open\n\n';
@@ -37,11 +49,20 @@ function readBody(req) {
   });
 }
 
-/** Send a JSON response. */
-function sendJson(res, status, body) {
-  const payload = JSON.stringify(body);
+/**
+ * Send a structured value, negotiating Links Notation (default) or JSON.
+ *
+ * @param {http.IncomingMessage} req - The request (its `Accept` header decides).
+ * @param {http.ServerResponse} res - The response.
+ * @param {number} status - HTTP status code.
+ * @param {unknown} value - The value to encode.
+ */
+function sendData(req, res, status, value) {
+  const asJson = prefersJson(req.headers.accept);
+  const payload = asJson ? JSON.stringify(value) : encode(value);
+  const type = asJson ? JSON_CONTENT_TYPE : LINO_CONTENT_TYPE;
   res.writeHead(status, {
-    'content-type': 'application/json; charset=utf-8',
+    'content-type': `${type}; charset=utf-8`,
     'content-length': Buffer.byteLength(payload),
   });
   res.end(payload);
@@ -56,7 +77,17 @@ function sendText(res, status, text) {
   res.end(text);
 }
 
-/** Extract the query text from a request body honouring its content type. */
+/**
+ * Extract the query text from a request body honouring its content type.
+ *
+ * A JSON body may wrap the query as `{ "query": "..." }`; a Links Notation body
+ * may wrap it as `((query "..."))`. Any other body is treated as raw query text
+ * (the LinksQL query language is itself Links Notation).
+ *
+ * @param {string} body - The raw request body.
+ * @param {string|undefined} contentType - The request `Content-Type` header.
+ * @returns {string} The query text to execute.
+ */
 function queryFromBody(body, contentType) {
   if (contentType && contentType.includes('application/json')) {
     const parsed = JSON.parse(body);
@@ -64,6 +95,17 @@ function queryFromBody(body, contentType) {
       throw new Error('JSON body must contain a string "query" field');
     }
     return parsed.query;
+  }
+  if (contentType && contentType.includes(LINO_CONTENT_TYPE)) {
+    const parsed = decode(body);
+    if (parsed && typeof parsed === 'object' && 'query' in parsed) {
+      const { query } = /** @type {{query: unknown}} */ (parsed);
+      if (typeof query !== 'string') {
+        throw new Error('Links Notation body must wrap a string "query"');
+      }
+      return query;
+    }
+    throw new Error('Links Notation query body must be `((query "..."))`');
   }
   return body;
 }
@@ -101,16 +143,16 @@ export class LinksQLServer {
       const url = new URL(req.url, 'http://localhost');
       const route = `${req.method} ${url.pathname}`;
       if (route === 'GET /') {
-        return this.handleStatus(res);
+        return this.handleStatus(req, res);
       }
       if (route === 'POST /query') {
         return await this.handleQuery(req, res);
       }
       if (route === 'GET /links') {
-        return sendJson(res, 200, { links: this.db.links() });
+        return sendData(req, res, 200, { links: this.db.links() });
       }
       if (route === 'GET /introspect') {
-        return sendJson(res, 200, this.db.introspect());
+        return sendData(req, res, 200, this.db.introspect());
       }
       if (route === 'POST /import') {
         return await this.handleImport(req, res);
@@ -121,15 +163,15 @@ export class LinksQLServer {
       if (route === 'GET /subscribe') {
         return this.handleSubscribe(req, res, url);
       }
-      return sendJson(res, 404, { error: `No route for ${route}` });
+      return sendData(req, res, 404, { error: `No route for ${route}` });
     } catch (error) {
-      return sendJson(res, 400, { error: error.message });
+      return sendData(req, res, 400, { error: error.message });
     }
   }
 
   /** Respond with the server status. */
-  handleStatus(res) {
-    sendJson(res, 200, {
+  handleStatus(req, res) {
+    sendData(req, res, 200, {
       name: this.name,
       version: this.version,
       links: this.db.count(),
@@ -141,14 +183,14 @@ export class LinksQLServer {
     const body = await readBody(req);
     const text = queryFromBody(body, req.headers['content-type']);
     const report = this.db.query(text);
-    sendJson(res, 200, report);
+    sendData(req, res, 200, report);
   }
 
   /** Bulk-import LiNo text. */
   async handleImport(req, res) {
     const body = await readBody(req);
     const imported = this.db.importLino(body);
-    sendJson(res, 200, { imported });
+    sendData(req, res, 200, { imported });
   }
 
   /**
@@ -160,8 +202,10 @@ export class LinksQLServer {
    */
   handleSubscribe(req, res, url) {
     const pattern = url.searchParams.get('pattern') || '()';
+    const asJson = prefersJson(req.headers.accept);
     const unsubscribe = this.subscriptions.subscribe(pattern, (event) => {
-      res.write(`data: ${JSON.stringify(event)}\n\n`);
+      const data = asJson ? JSON.stringify(event) : encode(event);
+      res.write(`data: ${data}\n\n`);
     });
     req.on('close', unsubscribe);
     res.writeHead(200, {

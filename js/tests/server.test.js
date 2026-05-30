@@ -10,6 +10,7 @@
 import { describe, it, expect } from 'test-anywhere';
 import { LinksQLServer } from '../src/server.js';
 import { LinksQLClient } from '../src/client.js';
+import { decode } from '../src/protocol.js';
 
 const isDenoRuntime = typeof Deno !== 'undefined';
 
@@ -62,9 +63,27 @@ describe('LinksQLServer + LinksQLClient', () => {
     });
   });
 
-  it('reports the server status', async () => {
+  it('reports the server status as Links Notation by default', async () => {
     await withServer(async (server) => {
       const response = await fetch(`${server.url}/`);
+      expect(response.headers.get('content-type')).toContain(
+        'application/lino'
+      );
+      const status = decode(await response.text());
+      expect(status.name).toBe('linksql');
+      expect(status.version).toBe('1.2.3');
+      expect(status.links).toBe(0);
+    });
+  });
+
+  it('reports the server status as JSON when the client asks for it', async () => {
+    await withServer(async (server) => {
+      const response = await fetch(`${server.url}/`, {
+        headers: { accept: 'application/json' },
+      });
+      expect(response.headers.get('content-type')).toContain(
+        'application/json'
+      );
       const status = await response.json();
       expect(status.name).toBe('linksql');
       expect(status.version).toBe('1.2.3');

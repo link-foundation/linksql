@@ -11,6 +11,7 @@ import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 import { runCli } from '../bin/linksql.js';
+import { decode } from '../src/protocol.js';
 
 const packageJson = JSON.parse(readFileSync('package.json', 'utf8'));
 const lockJson = JSON.parse(readFileSync('package-lock.json', 'utf8'));
@@ -41,7 +42,7 @@ describe('publishable package metadata', () => {
 
     expect(code).toBe(0);
     expect(stderr).toEqual([]);
-    const report = JSON.parse(stdout[0]);
+    const report = decode(stdout[0]);
     expect(report.operation).toBe('create');
     expect(report.created).toEqual([{ index: 1, source: 1, target: 1 }]);
   });
@@ -78,7 +79,7 @@ describe('publishable package metadata', () => {
 
       expect(result.status).toBe(0);
       expect(result.stderr).toBe('');
-      const report = JSON.parse(result.stdout);
+      const report = decode(result.stdout);
       expect(report.operation).toBe('create');
     } finally {
       rmSync(tempRoot, { force: true, recursive: true });

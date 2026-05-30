@@ -1,11 +1,15 @@
 /**
  * LinksQL HTTP client.
  *
- * The mirror image of {@link LinksQLServer}: a thin, dependency-free wrapper
- * around `fetch` that speaks the same endpoints. Subscriptions are consumed as
- * a Server-Sent Events stream, giving the client a GraphQL-style live feed of
- * the changes that match a pattern.
+ * The mirror image of {@link LinksQLServer}: a thin wrapper around `fetch` that
+ * speaks the same endpoints. Like the server, it uses Links Notation as the wire
+ * protocol — requests ask for `application/lino` and responses are decoded from
+ * Links Notation into plain objects. Subscriptions are consumed as a
+ * Server-Sent Events stream, giving the client a GraphQL-style live feed of the
+ * changes that match a pattern.
  */
+
+import { decode, LINO_CONTENT_TYPE } from './protocol.js';
 
 /** Parse complete `data:` frames out of an SSE buffer, returning the remainder. */
 function drainFrames(buffer, onEvent) {
@@ -20,7 +24,7 @@ function drainFrames(buffer, onEvent) {
       .map((line) => line.slice(5).replace(/^ /, ''))
       .join('\n');
     if (data) {
-      onEvent(JSON.parse(data));
+      onEvent(decode(data));
     }
     boundary = rest.indexOf('\n\n');
   }
@@ -42,11 +46,15 @@ export class LinksQLClient {
     }
   }
 
-  /** Decode a JSON response, throwing on a non-2xx status. */
-  async json(response) {
-    const body = await response.json();
+  /** Decode a Links Notation response, throwing on a non-2xx status. */
+  async data(response) {
+    const text = await response.text();
+    const body = text ? decode(text) : {};
     if (!response.ok) {
-      throw new Error(body.error || `Request failed: ${response.status}`);
+      const message =
+        (body && typeof body === 'object' && body.error) ||
+        `Request failed: ${response.status}`;
+      throw new Error(message);
     }
     return body;
   }
@@ -60,23 +68,30 @@ export class LinksQLClient {
   async query(text) {
     const response = await this.fetch(`${this.baseUrl}/query`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ query: text }),
+      headers: {
+        'content-type': 'text/plain; charset=utf-8',
+        accept: LINO_CONTENT_TYPE,
+      },
+      body: text,
     });
-    return this.json(response);
+    return this.data(response);
   }
 
   /** @returns {Promise<Array<object>>} Every stored link. */
   async links() {
-    const response = await this.fetch(`${this.baseUrl}/links`);
-    const body = await this.json(response);
+    const response = await this.fetch(`${this.baseUrl}/links`, {
+      headers: { accept: LINO_CONTENT_TYPE },
+    });
+    const body = await this.data(response);
     return body.links;
   }
 
   /** @returns {Promise<object>} The server's introspection snapshot. */
   async introspect() {
-    const response = await this.fetch(`${this.baseUrl}/introspect`);
-    return this.json(response);
+    const response = await this.fetch(`${this.baseUrl}/introspect`, {
+      headers: { accept: LINO_CONTENT_TYPE },
+    });
+    return this.data(response);
   }
 
   /**
@@ -88,10 +103,10 @@ export class LinksQLClient {
   async importLino(text) {
     const response = await this.fetch(`${this.baseUrl}/import`, {
       method: 'POST',
-      headers: { 'content-type': 'text/plain' },
+      headers: { 'content-type': 'text/plain', accept: LINO_CONTENT_TYPE },
       body: text,
     });
-    const body = await this.json(response);
+    const body = await this.data(response);
     return body.imported;
   }
 
