@@ -26,6 +26,14 @@ from .lino import (
     tokenize,
 )
 from .names import Names, UnknownNameError
+from .protocol import (
+    JSON_CONTENT_TYPE,
+    LINO_CONTENT_TYPE,
+    decode,
+    encode,
+    escape_reference,
+    prefers_json,
+)
 from .query import (
     Database,
     Introspection,
@@ -54,6 +62,8 @@ from .substitution import (
 __version__ = "0.1.0"
 
 __all__ = [
+    "JSON_CONTENT_TYPE",
+    "LINO_CONTENT_TYPE",
     "Context",
     "Database",
     "Introspection",
@@ -77,6 +87,9 @@ __all__ = [
     "Token",
     "UnknownNameError",
     "__version__",
+    "decode",
+    "encode",
+    "escape_reference",
     "execute",
     "link_matches",
     "link_slots",
@@ -84,6 +97,7 @@ __all__ = [
     "match_restriction",
     "parse",
     "patterns_of",
+    "prefers_json",
     "serialize",
     "serialize_all",
     "split_query",
