@@ -6,7 +6,10 @@ const packageJsonPath = `${exampleRoot}/package.json`;
 const appSourcePath = `${exampleRoot}/src/App.js`;
 const viteConfigPath = `${exampleRoot}/vite.config.js`;
 const capacitorConfigPath = `${exampleRoot}/capacitor.config.json`;
-const workflowPath = '.github/workflows/example-app.yml';
+// The JS implementation lives under ./js, so the repo-root workflow and
+// README are one level up from this package's working directory.
+const workflowPath = '../.github/workflows/example-app.yml';
+const rootReadmePath = '../README.md';
 const docsPath = `${exampleRoot}/README.md`;
 
 function readText(filePath) {
@@ -109,7 +112,7 @@ describe('universal React example app', () => {
     const rootPackageJson = readJson('package.json');
     const workflow = readText(workflowPath);
     const script = readText('scripts/update-preview-images.mjs');
-    const rootReadme = readText('README.md');
+    const rootReadme = readText(rootReadmePath);
 
     expect(rootPackageJson.scripts['example:web:preview-images']).toBe(
       'node scripts/update-preview-images.mjs'

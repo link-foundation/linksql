@@ -3,7 +3,7 @@
 #
 # Enforces the documented 1500-line architecture limit on tracked
 # JavaScript (.js, .mjs, .cjs) and Markdown (.md) files, plus
-# .github/workflows/release.yml.
+# any GitHub Actions workflow files under .github/workflows/.
 #
 # This shell gate complements the ESLint `max-lines` rule: ESLint only
 # covers source files it lints, while this check walks every tracked
@@ -62,12 +62,14 @@ done < <(find . -type f \
   -print0)
 
 echo ""
-echo "Checking that .github/workflows/release.yml is under ${LIMIT} lines..."
-RELEASE_YML=".github/workflows/release.yml"
-if [ -f "$RELEASE_YML" ]; then
-  check_file "$RELEASE_YML" "Move inline scripts to the ./scripts/ folder to reduce file size."
+echo "Checking that GitHub Actions workflow files are under ${LIMIT} lines..."
+WORKFLOW_DIR=".github/workflows"
+if [ -d "$WORKFLOW_DIR" ]; then
+  while IFS= read -r -d '' file; do
+    check_file "$file" "Move inline scripts to the ./scripts/ folder to reduce file size."
+  done < <(find "$WORKFLOW_DIR" -type f \( -name "*.yml" -o -name "*.yaml" \) -print0)
 else
-  echo "WARNING: $RELEASE_YML not found, skipping"
+  echo "WARNING: $WORKFLOW_DIR not found, skipping"
 fi
 
 echo ""

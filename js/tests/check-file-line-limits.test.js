@@ -59,7 +59,7 @@ describe('check-file-line-limits.sh', () => {
     it('warns without failing for files above the warning threshold', () => {
       const root = createFixture({
         'src/near-limit.mjs': 1351,
-        '.github/workflows/release.yml': 1351,
+        '.github/workflows/js.yml': 1351,
       });
 
       try {
@@ -70,13 +70,13 @@ describe('check-file-line-limits.sh', () => {
           'WARNING: ./src/near-limit.mjs has 1351 lines'
         );
         expect(result.stdout).toContain(
-          'WARNING: .github/workflows/release.yml has 1351 lines'
+          'WARNING: .github/workflows/js.yml has 1351 lines'
         );
         expect(result.stdout).toContain(
           'The following files are approaching the 1500 line limit (>1350 lines):'
         );
         expect(result.stdout).toContain('  ./src/near-limit.mjs');
-        expect(result.stdout).toContain('  .github/workflows/release.yml');
+        expect(result.stdout).toContain('  .github/workflows/js.yml');
         expect(result.stdout).not.toContain(
           'The following files exceed the 1500 line limit:'
         );
