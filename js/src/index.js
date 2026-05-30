@@ -9,8 +9,8 @@
  * @example
  *   import { Database } from '@link-foundation/linksql';
  *   const db = new Database();
- *   db.query('() ((alice loves bob))'); // create
- *   db.query('((alice $x))');           // read everything alice links to
+ *   db.query('() (((alice loves) bob))'); // create the higher-order link
+ *   db.query('(((alice loves) $x))');     // read everything `alice loves` points to
  */
 
 export {
@@ -42,9 +42,11 @@ export {
   TRIGGER_MODES,
 } from './triggers.js';
 
-export { LinksQLServer, startServer } from './server.js';
+export { LinksQLServer, startServer, createSchemaServer } from './server.js';
 
 export { LinksQLClient } from './client.js';
+
+export { Schema, SchemaError } from './schema.js';
 
 export {
   encode,

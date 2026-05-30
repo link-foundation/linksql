@@ -95,6 +95,64 @@ export class LinksQLClient {
   }
 
   /**
+   * Fetch the server's schema introspection document (its GraphQL `__schema`).
+   *
+   * @returns {Promise<object>} The schema introspection document.
+   */
+  async schema() {
+    const response = await this.fetch(`${this.baseUrl}/schema`, {
+      headers: { accept: LINO_CONTENT_TYPE },
+    });
+    return this.data(response);
+  }
+
+  /**
+   * Run a query declared by name in the server's schema.
+   *
+   * @param {string} name - The declared query's name.
+   * @returns {Promise<object>} The structured report.
+   */
+  async runNamed(name) {
+    const response = await this.fetch(
+      `${this.baseUrl}/query/${encodeURIComponent(name)}`,
+      { method: 'POST', headers: { accept: LINO_CONTENT_TYPE } }
+    );
+    return this.data(response);
+  }
+
+  /**
+   * Subscribe to a named subscription declared in the server's schema.
+   *
+   * @param {string} name - The declared subscription's name.
+   * @param {(event: {operation: string, matching: object[]}) => void} onEvent -
+   *   Invoked for every matching change.
+   * @param {object} [options] - Subscription options.
+   * @param {AbortSignal} [options.signal] - Caller-controlled cancellation.
+   * @returns {{ready: Promise<void>, done: Promise<void>, close: () => void}}
+   *   Same shape as {@link LinksQLClient#subscribe}.
+   */
+  subscribeNamed(name, onEvent, { signal } = {}) {
+    const controller = new AbortController();
+    const abortSignal = signal || controller.signal;
+    const url = `${this.baseUrl}/subscribe/${encodeURIComponent(name)}`;
+    let resolveReady;
+    const ready = new Promise((resolve) => {
+      resolveReady = resolve;
+    });
+    const done = this.streamEvents(
+      url,
+      abortSignal,
+      onEvent,
+      resolveReady
+    ).catch((error) => {
+      if (error.name !== 'AbortError') {
+        throw error;
+      }
+    });
+    return { ready, done, close: () => controller.abort() };
+  }
+
+  /**
    * Bulk-import LiNo text.
    *
    * @param {string} text - LiNo text of links to create.

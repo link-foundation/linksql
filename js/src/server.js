@@ -20,6 +20,12 @@
  *   GET  /export          the whole database as canonical LiNo text
  *   GET  /subscribe?pattern=...   Server-Sent Events stream of matching changes
  *
+ * When a {@link Schema} is supplied the server also generates a GraphQL-class
+ * API from it — the "generate server by schema" requirement:
+ *   GET  /schema                  the schema's introspection document
+ *   POST /query/<name>            run a named query declared in the schema
+ *   GET  /subscribe/<name>        SSE stream for a named subscription
+ *
  * A subscription is the direct replacement for a GraphQL subscription: the
  * client supplies a restriction pattern and receives an SSE message whenever an
  * operation touches a matching link.
@@ -28,6 +34,7 @@
 import http from 'node:http';
 import { Database } from './query.js';
 import { Subscriptions } from './triggers.js';
+import { Schema } from './schema.js';
 import {
   encode,
   decode,
@@ -118,15 +125,20 @@ export class LinksQLServer {
    * @param {boolean} [options.autoCreate] - Passed through when creating one.
    * @param {string} [options.name] - Reported in the status payload.
    * @param {string} [options.version] - Reported in the status payload.
+   * @param {Schema|string} [options.schema] - A schema (or its LiNo text) that
+   *   turns the server into a generated, schema-described API.
    */
   constructor({
     database,
     autoCreate = true,
-    name = 'linksql',
+    name,
     version = '0.0.0',
+    schema,
   } = {}) {
     this.db = database || new Database({ autoCreate });
-    this.name = name;
+    this.schema =
+      typeof schema === 'string' ? Schema.parse(schema) : schema || null;
+    this.name = name || (this.schema && this.schema.name) || 'linksql';
     this.version = version;
     this.subscriptions = new Subscriptions(this.db);
     this.server = http.createServer((req, res) => this.handle(req, res));
@@ -160,6 +172,27 @@ export class LinksQLServer {
       if (route === 'GET /export') {
         return sendText(res, 200, this.db.toLino());
       }
+      if (route === 'GET /schema') {
+        return this.handleSchema(req, res);
+      }
+      const namedQuery = this.matchNamed(
+        req.method,
+        url.pathname,
+        'POST',
+        '/query/'
+      );
+      if (namedQuery !== null) {
+        return await this.handleNamedQuery(req, res, namedQuery);
+      }
+      const namedSub = this.matchNamed(
+        req.method,
+        url.pathname,
+        'GET',
+        '/subscribe/'
+      );
+      if (namedSub !== null) {
+        return this.handleNamedSubscribe(req, res, namedSub);
+      }
       if (route === 'GET /subscribe') {
         return this.handleSubscribe(req, res, url);
       }
@@ -186,6 +219,72 @@ export class LinksQLServer {
     sendData(req, res, 200, report);
   }
 
+  /**
+   * Decode the trailing name segment of a prefixed route, e.g. `/query/<name>`.
+   *
+   * @param {string} method - The request method.
+   * @param {string} pathname - The request path.
+   * @param {string} wanted - The method this route requires.
+   * @param {string} prefix - The path prefix (with trailing slash).
+   * @returns {string|null} The decoded name, or null when the route is not this one.
+   */
+  matchNamed(method, pathname, wanted, prefix) {
+    if (method !== wanted || !pathname.startsWith(prefix)) {
+      return null;
+    }
+    const name = pathname.slice(prefix.length);
+    return name.length > 0 ? decodeURIComponent(name) : null;
+  }
+
+  /** Respond with the schema's introspection document. */
+  handleSchema(req, res) {
+    if (!this.schema) {
+      return sendData(req, res, 404, { error: 'This server has no schema' });
+    }
+    return sendData(req, res, 200, this.schema.introspect());
+  }
+
+  /**
+   * Run a query declared by name in the schema.
+   *
+   * @param {http.IncomingMessage} req - The request.
+   * @param {http.ServerResponse} res - The response.
+   * @param {string} name - The declared query's name.
+   */
+  async handleNamedQuery(req, res, name) {
+    if (!this.schema) {
+      return sendData(req, res, 404, { error: 'This server has no schema' });
+    }
+    const declared = this.schema.query(name);
+    if (!declared) {
+      return sendData(req, res, 404, { error: `No query named "${name}"` });
+    }
+    // Drain the body so the socket is free even though named queries are fixed.
+    await readBody(req);
+    const report = this.db.query(declared.text);
+    return sendData(req, res, 200, report);
+  }
+
+  /**
+   * Open an SSE stream for a subscription declared by name in the schema.
+   *
+   * @param {http.IncomingMessage} req - The request.
+   * @param {http.ServerResponse} res - The response.
+   * @param {string} name - The declared subscription's name.
+   */
+  handleNamedSubscribe(req, res, name) {
+    if (!this.schema) {
+      return sendData(req, res, 404, { error: 'This server has no schema' });
+    }
+    const declared = this.schema.subscription(name);
+    if (!declared) {
+      return sendData(req, res, 404, {
+        error: `No subscription named "${name}"`,
+      });
+    }
+    return this.openStream(req, res, declared.pattern);
+  }
+
   /** Bulk-import LiNo text. */
   async handleImport(req, res) {
     const body = await readBody(req);
@@ -202,6 +301,17 @@ export class LinksQLServer {
    */
   handleSubscribe(req, res, url) {
     const pattern = url.searchParams.get('pattern') || '()';
+    this.openStream(req, res, pattern);
+  }
+
+  /**
+   * Open a Server-Sent Events stream for a restriction pattern.
+   *
+   * @param {http.IncomingMessage} req - The request.
+   * @param {http.ServerResponse} res - The response.
+   * @param {string} pattern - The restriction whose matching changes to stream.
+   */
+  openStream(req, res, pattern) {
     const asJson = prefersJson(req.headers.accept);
     const unsubscribe = this.subscriptions.subscribe(pattern, (event) => {
       const data = asJson ? JSON.stringify(event) : encode(event);
@@ -267,4 +377,17 @@ export async function startServer(options = {}) {
   const server = new LinksQLServer(options);
   await server.listen(options.port, options.host);
   return server;
+}
+
+/**
+ * Generate and start a server from a schema — the "generate server by schema"
+ * requirement. The returned server exposes `GET /schema`, the named queries and
+ * subscriptions the schema declares, and every base endpoint.
+ *
+ * @param {Schema|string} schema - A schema instance or its Links Notation text.
+ * @param {object} [options] - Forwarded to {@link LinksQLServer} plus `port`/`host`.
+ * @returns {Promise<LinksQLServer>} The listening, schema-described server.
+ */
+export function createSchemaServer(schema, options = {}) {
+  return startServer({ ...options, schema });
 }
