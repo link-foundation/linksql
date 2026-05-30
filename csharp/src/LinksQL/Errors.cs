@@ -130,6 +130,38 @@ public sealed class SubstitutionError : Exception
 }
 
 /// <summary>
+/// Error thrown when a schema is malformed or violated.
+/// </summary>
+/// <remarks>
+/// Mirrors the JavaScript <c>SchemaError</c>; the name deliberately does not end
+/// in <c>Exception</c> for cross-language fidelity (see the CA1710 NoWarn note in
+/// the project file).
+/// </remarks>
+public sealed class SchemaError : Exception
+{
+    /// <summary>Initializes a new instance of the <see cref="SchemaError"/> class.</summary>
+    public SchemaError()
+        : base("Schema error")
+    {
+    }
+
+    /// <summary>Initializes a new instance of the <see cref="SchemaError"/> class.</summary>
+    /// <param name="message">Human readable description.</param>
+    public SchemaError(string message)
+        : base(message)
+    {
+    }
+
+    /// <summary>Initializes a new instance of the <see cref="SchemaError"/> class.</summary>
+    /// <param name="message">Human readable description.</param>
+    /// <param name="innerException">The exception that caused this error.</param>
+    public SchemaError(string message, Exception innerException)
+        : base(message, innerException)
+    {
+    }
+}
+
+/// <summary>
 /// Error thrown when query text is well-formed LiNo but not a valid query.
 /// </summary>
 public sealed class QueryError : Exception

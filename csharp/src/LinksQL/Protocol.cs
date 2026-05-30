@@ -475,4 +475,50 @@ public static class Protocol
     /// <returns>The snapshot rendered as Links Notation.</returns>
     public static string EncodeIntrospection(IntrospectionReport report) =>
         Encode(FromIntrospection(report));
+
+    /// <summary>
+    /// Project a schema onto its <see cref="LinoValue"/> object — the GraphQL
+    /// <c>__schema</c> introspection-document analogue, shaped like the JavaScript
+    /// <c>schema.introspect()</c>.
+    /// </summary>
+    /// <param name="schema">The schema to project.</param>
+    /// <returns>The schema as a <see cref="LinoValue"/> tree.</returns>
+    public static LinoValue FromSchema(Schema schema)
+    {
+        ArgumentNullException.ThrowIfNull(schema);
+
+        var relations = new LinoValue.Arr(
+            schema.Relations.Select(relation => (LinoValue)new LinoValue.Obj(
+            [
+                new("name", new LinoValue.Str(relation.Name)),
+                new("from", new LinoValue.Str(relation.From)),
+                new("to", new LinoValue.Str(relation.To)),
+            ])).ToList());
+        var queries = new LinoValue.Arr(
+            schema.Queries.Select(query => (LinoValue)new LinoValue.Obj(
+            [
+                new("name", new LinoValue.Str(query.Name)),
+                new("text", new LinoValue.Str(query.Text)),
+            ])).ToList());
+        var subscriptions = new LinoValue.Arr(
+            schema.Subscriptions.Select(sub => (LinoValue)new LinoValue.Obj(
+            [
+                new("name", new LinoValue.Str(sub.Name)),
+                new("pattern", new LinoValue.Str(sub.Pattern)),
+            ])).ToList());
+        return new LinoValue.Obj(
+        [
+            new("name", schema.Name is null ? new LinoValue.Null() : new LinoValue.Str(schema.Name)),
+            new("types", new LinoValue.Arr(schema.Types.Select(type => (LinoValue)new LinoValue.Str(type)).ToList())),
+            new("scalars", new LinoValue.Arr(schema.Scalars.Select(scalar => (LinoValue)new LinoValue.Str(scalar)).ToList())),
+            new("relations", relations),
+            new("queries", queries),
+            new("subscriptions", subscriptions),
+        ]);
+    }
+
+    /// <summary>Encode a schema directly as Links Notation text.</summary>
+    /// <param name="schema">The schema to encode.</param>
+    /// <returns>The schema rendered as Links Notation.</returns>
+    public static string EncodeSchema(Schema schema) => Encode(FromSchema(schema));
 }

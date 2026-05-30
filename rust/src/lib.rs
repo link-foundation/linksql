@@ -32,6 +32,7 @@ pub mod lino;
 pub mod names;
 pub mod protocol;
 pub mod query;
+pub mod schema;
 pub mod store;
 pub mod substitution;
 
@@ -45,6 +46,7 @@ pub use protocol::{
 pub use query::{
     link_to_lino, split_query, Database, Introspection, MatchRow, Operation, QueryReport,
 };
+pub use schema::{NamedQuery, NamedSubscription, Relation, Schema};
 pub use store::{Link, LinksStore};
 pub use substitution::{
     execute, link_matches, link_slots, match_restriction, RawResult, Row, Slots, Spec,
@@ -63,6 +65,7 @@ use core::fmt;
 /// - [`Error::UnknownName`] ⇔ `UnknownNameError`.
 /// - [`Error::Substitution`] ⇔ `SubstitutionError`.
 /// - [`Error::Query`] ⇔ `QueryError`.
+/// - [`Error::Schema`] ⇔ `SchemaError`.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Error {
     /// LiNo input could not be parsed. `position` is the zero-based offset of the
@@ -81,6 +84,8 @@ pub enum Error {
     Substitution(String),
     /// Query text was well-formed LiNo but not a valid query.
     Query(String),
+    /// A schema document was malformed or violated.
+    Schema(String),
 }
 
 impl Error {
@@ -106,7 +111,10 @@ impl fmt::Display for Error {
                     write!(f, "{message}")
                 }
             }
-            Self::LinkIntegrity(message) | Self::Substitution(message) | Self::Query(message) => {
+            Self::LinkIntegrity(message)
+            | Self::Substitution(message)
+            | Self::Query(message)
+            | Self::Schema(message) => {
                 write!(f, "{message}")
             }
             Self::UnknownName(name) => write!(f, "Unknown named reference: {name}"),

@@ -45,6 +45,13 @@ from .query import (
     patterns_of,
     split_query,
 )
+from .schema import (
+    NamedQuery,
+    NamedSubscription,
+    Relation,
+    Schema,
+    SchemaError,
+)
 from .store import Link, LinkIntegrityError, LinksStore
 from .substitution import (
     Context,
@@ -73,13 +80,18 @@ __all__ = [
     "LinksStore",
     "LinoSyntaxError",
     "MatchRow",
+    "NamedQuery",
+    "NamedSubscription",
     "Names",
     "Node",
     "QueryError",
     "QueryReport",
     "RawResult",
     "Ref",
+    "Relation",
     "Row",
+    "Schema",
+    "SchemaError",
     "Slots",
     "Spec",
     "SplitQuery",

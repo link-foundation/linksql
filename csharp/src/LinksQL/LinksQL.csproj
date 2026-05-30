@@ -38,7 +38,12 @@
                  (Int, Float, Bool, Str, ...) are deliberate value-tag names
                  mirroring the JSON-shaped data model the wire protocol encodes;
                  they are not exposed as ambiguous API surface.
+        CA1724 - "type name conflicts with a namespace". The Schema type mirrors
+                 the JavaScript reference's `Schema` class 1:1 for cross-language
+                 fidelity; the partial clash with System.Xml.Schema is harmless
+                 (it is never imported) and renaming would break the
+                 faithful-port contract.
     -->
-    <NoWarn>$(NoWarn);CS1591;CA1710;CA1034;CA1720</NoWarn>
+    <NoWarn>$(NoWarn);CS1591;CA1710;CA1034;CA1720;CA1724</NoWarn>
   </PropertyGroup>
 </Project>
