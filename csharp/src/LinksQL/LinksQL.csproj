@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>LinksQL</RootNamespace>
+    <AssemblyName>LinksQL</AssemblyName>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningLevel>9999</WarningLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest-all</AnalysisLevel>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!--
+      Justified analyzer suppressions (functional correctness is unaffected):
+        CS1591 - missing XML doc on public members; GenerateDocumentationFile is
+                 on for the documented public surface but record positional
+                 parameters / enum members do not all need prose.
+        CA1710 - "rename to end in 'Exception'". The error type names
+                 (LinoSyntaxError, LinkIntegrityError, UnknownNameError,
+                 SubstitutionError, QueryError) mirror the JavaScript reference
+                 implementation 1:1 for cross-language fidelity; renaming them
+                 would break the faithful-port contract.
+        CA1034 - "do not nest public types". Token.LParen/RParen/Colon/RefToken
+                 are a closed discriminated union nested under Token; this is the
+                 canonical C# sealed-hierarchy idiom and the grouping is
+                 intentional. (The template test project NoWarns CA1034 too.)
+    -->
+    <NoWarn>$(NoWarn);CS1591;CA1710;CA1034</NoWarn>
+  </PropertyGroup>
+</Project>
