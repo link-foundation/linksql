@@ -1,12 +1,12 @@
 {
-  "name": "@link-foundation/example-package-name",
+  "name": "@link-foundation/linksql",
   "version": "0.11.3",
-  "description": "A JavaScript/TypeScript package template for AI-driven development",
+  "description": "LinksQL: an associative query language and reference implementation — GraphQL-class power in the style of link-cli",
   "type": "module",
   "main": "src/index.js",
   "types": "src/index.d.ts",
   "bin": {
-    "example-package-name": "./bin/example-package-name.js"
+    "linksql": "./bin/linksql.js"
   },
   "files": [
     "bin/",
@@ -43,10 +43,14 @@
     "changeset:status": "changeset status --since=origin/main"
   },
   "keywords": [
-    "template",
-    "javascript",
-    "typescript",
-    "ai-driven"
+    "linksql",
+    "query-language",
+    "associative",
+    "links",
+    "doublets",
+    "lino",
+    "graphql-alternative",
+    "graph-database"
   ],
   "author": "",
   "license": "Unlicense",
@@ -55,7 +59,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/link-foundation/js-ai-driven-development-pipeline-template.git"
+    "url": "git+https://github.com/link-foundation/linksql.git"
   },
   "engines": {
     "node": ">=20.0.0"

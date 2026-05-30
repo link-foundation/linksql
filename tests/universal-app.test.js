@@ -47,14 +47,16 @@ describe('universal React example app', () => {
     expect(packageJson.scripts['mobile:ios:run']).toContain('cap run ios');
   });
 
-  it('renders a visual UI using the package add and multiply functions', () => {
+  it('renders a visual UI driven by the LinksQL Database', () => {
     const appSource = readText(appSourcePath);
 
-    expect(appSource).toContain("from '../../../src/index.js'");
-    expect(appSource).toContain('add(parsedLeft, parsedRight)');
-    expect(appSource).toContain('multiply(parsedLeft, parsedRight)');
-    expect(appSource).toContain('Addition');
-    expect(appSource).toContain('Multiplication');
+    // The browser bundle imports the query executor directly, never the
+    // package entry point, so the Node-only HTTP server stays out of the build.
+    expect(appSource).toContain("from '../../../src/query.js'");
+    expect(appSource).toContain('new Database()');
+    expect(appSource).toContain('db.query(queryText)');
+    expect(appSource).toContain('LinksQL');
+    expect(appSource).toContain('Single substitution operation');
   });
 
   it('shares the Vite build output with Capacitor and GitHub Pages', () => {
@@ -65,7 +67,7 @@ describe('universal React example app', () => {
     expect(viteConfig).toContain('base: resolveBasePath()');
     expect(viteConfig).toContain("outDir: 'dist'");
     expect(capacitorConfig.webDir).toBe('dist');
-    expect(capacitorConfig.appId).toBe('foundation.link.template.example');
+    expect(capacitorConfig.appId).toBe('foundation.link.linksql.example');
   });
 
   it('adds root scripts and a workflow for web, desktop, and mobile checks', () => {

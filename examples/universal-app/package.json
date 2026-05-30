@@ -1,8 +1,8 @@
 {
-  "name": "universal-example-app",
+  "name": "linksql-playground",
   "version": "0.1.0",
   "private": true,
-  "description": "Universal React example for the JavaScript template package",
+  "description": "Universal LinksQL playground (web, desktop, mobile) built on the reference implementation",
   "type": "module",
   "main": "electron/main.cjs",
   "scripts": {

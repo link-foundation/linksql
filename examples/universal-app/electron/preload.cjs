@@ -2,6 +2,6 @@
 
 const { contextBridge } = require('electron');
 
-contextBridge.exposeInMainWorld('universalExample', {
+contextBridge.exposeInMainWorld('linksqlPlayground', {
   platform: process.platform,
 });

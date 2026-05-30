@@ -1,10 +1,14 @@
-# Universal Example App
+# LinksQL Playground
 
-This example turns the package functions in `src/index.js` into a React UI and
-uses the same build output for GitHub Pages, Electron desktop packages, and
-Capacitor mobile projects.
+This example turns the LinksQL query executor in `src/query.js` into a React UI
+where you can run the single substitution operation against an in-memory
+associative database. It uses the same build output for GitHub Pages, Electron
+desktop packages, and Capacitor mobile projects.
 
-![Universal example app preview](../../docs/screenshots/example-app/example-app.png)
+The browser bundle imports `src/query.js` directly (never `src/index.js`) so the
+Node-only HTTP server never reaches the web build.
+
+![LinksQL Playground preview](../../docs/screenshots/example-app/example-app.png)
 
 > The preview image above is regenerated automatically on every push to `main`
 > by the `preview-regen` job in `.github/workflows/example-app.yml`. Run it

@@ -3,8 +3,8 @@
 module.exports = {
   packagerConfig: {
     asar: true,
-    executableName: 'universal-example-app',
-    name: 'Universal Example App',
+    executableName: 'linksql-playground',
+    name: 'LinksQL Playground',
   },
   rebuildConfig: {},
   makers: [
@@ -15,16 +15,15 @@ module.exports = {
     {
       name: '@electron-forge/maker-squirrel',
       config: {
-        name: 'universal_example_app',
+        name: 'linksql_playground',
       },
     },
     {
       name: '@electron-forge/maker-deb',
       config: {
         options: {
-          maintainer: 'Template Maintainers',
-          homepage:
-            'https://github.com/link-foundation/js-ai-driven-development-pipeline-template',
+          maintainer: 'LinksQL Maintainers',
+          homepage: 'https://github.com/link-foundation/linksql',
         },
       },
     },

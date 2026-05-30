@@ -22,9 +22,19 @@ export default [
         __filename: 'readonly',
         require: 'readonly',
         module: 'readonly',
-        // Node.js 18+ globals
+        // Web platform globals exposed by Node.js 18+ and browsers
         fetch: 'readonly',
         AbortController: 'readonly',
+        AbortSignal: 'readonly',
+        URL: 'readonly',
+        URLSearchParams: 'readonly',
+        TextEncoder: 'readonly',
+        TextDecoder: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        queueMicrotask: 'readonly',
         // Runtime-specific globals
         Bun: 'readonly',
         Deno: 'readonly',

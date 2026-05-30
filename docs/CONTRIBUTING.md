@@ -1,4 +1,17 @@
-# Contributing to js-ai-driven-development-pipeline-template
+# Contributing to LinksQL
+
+LinksQL ships a single specification ([`docs/SPECIFICATION.md`](SPECIFICATION.md))
+and four reference implementations that must stay behaviourally identical:
+
+| Language   | Directory | Toolchain                              |
+| ---------- | --------- | -------------------------------------- |
+| JavaScript | `src/`    | Node.js / Bun / Deno, `test-anywhere`  |
+| Rust       | `rust/`   | `cargo test`, `clippy`, `rustfmt`      |
+| Python     | `python/` | `pytest`, `ruff`, `mypy`               |
+| C#         | `csharp/` | `dotnet test` (xUnit), `dotnet format` |
+
+When you change query semantics, update the specification first, then mirror the
+change in every implementation and its tests so the four stay in lock-step.
 
 ## Development Workflow
 
@@ -53,10 +66,24 @@ Tests should:
 - Use the [test-anywhere](https://github.com/link-foundation/test-anywhere) framework
 
 ```bash
-# Run tests
+# JavaScript — run tests on any runtime
 bun test --timeout 30000
 npm test
 deno test --allow-read
+```
+
+For the other implementations, run the native test commands inside each
+directory:
+
+```bash
+# Rust
+cd rust && cargo test
+
+# Python
+cd python && python -m pytest
+
+# C#
+cd csharp && dotnet test
 ```
 
 ## Version Management with Changesets

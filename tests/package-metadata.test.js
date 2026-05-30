@@ -10,41 +10,40 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
-import { runCli } from '../bin/example-package-name.js';
+import { runCli } from '../bin/linksql.js';
 
 const packageJson = JSON.parse(readFileSync('package.json', 'utf8'));
 const lockJson = JSON.parse(readFileSync('package-lock.json', 'utf8'));
 
 describe('publishable package metadata', () => {
-  it('uses the real link-foundation example package name', () => {
-    expect(packageJson.name).toBe('@link-foundation/example-package-name');
+  it('uses the @link-foundation/linksql package name', () => {
+    expect(packageJson.name).toBe('@link-foundation/linksql');
     expect(packageJson.publishConfig).toEqual({ access: 'public' });
-    expect(lockJson.name).toBe('@link-foundation/example-package-name');
-    expect(lockJson.packages[''].name).toBe(
-      '@link-foundation/example-package-name'
-    );
+    expect(lockJson.name).toBe('@link-foundation/linksql');
+    expect(lockJson.packages[''].name).toBe('@link-foundation/linksql');
   });
 
   it('defines a globally installable CLI command', () => {
     expect(packageJson.bin).toEqual({
-      'example-package-name': './bin/example-package-name.js',
+      linksql: './bin/linksql.js',
     });
-    expect(existsSync('bin/example-package-name.js')).toBe(true);
+    expect(existsSync('bin/linksql.js')).toBe(true);
   });
 
-  it('runs package functions through the CLI command', () => {
+  it('runs a query through the CLI command', async () => {
     const stdout = [];
     const stderr = [];
 
-    expect(
-      runCli(['add', '2', '3'], {
-        stderr: (line) => stderr.push(line),
-        stdout: (line) => stdout.push(line),
-      })
-    ).toBe(0);
+    const code = await runCli(['query', '() ((1 1))'], {
+      stderr: (line) => stderr.push(line),
+      stdout: (line) => stdout.push(line),
+    });
 
-    expect(stdout).toEqual(['5']);
+    expect(code).toBe(0);
     expect(stderr).toEqual([]);
+    const report = JSON.parse(stdout[0]);
+    expect(report.operation).toBe('create');
+    expect(report.created).toEqual([{ index: 1, source: 1, target: 1 }]);
   });
 
   it('runs when invoked through an npm-style bin symlink', () => {
@@ -52,11 +51,11 @@ describe('publishable package metadata', () => {
       return;
     }
 
-    const tempRoot = mkdtempSync(join(tmpdir(), 'example-package-name-'));
-    const linkPath = join(tempRoot, 'example-package-name');
+    const tempRoot = mkdtempSync(join(tmpdir(), 'linksql-'));
+    const linkPath = join(tempRoot, 'linksql');
 
     try {
-      symlinkSync(resolve('bin/example-package-name.js'), linkPath);
+      symlinkSync(resolve('bin/linksql.js'), linkPath);
     } catch (error) {
       rmSync(tempRoot, { force: true, recursive: true });
 
@@ -71,13 +70,16 @@ describe('publishable package metadata', () => {
     try {
       const result = spawnSync(
         process.execPath,
-        [linkPath, 'multiply', '6', '7'],
-        { encoding: 'utf8' }
+        [linkPath, 'query', '() ((1 1))'],
+        {
+          encoding: 'utf8',
+        }
       );
 
       expect(result.status).toBe(0);
-      expect(result.stdout.trim()).toBe('42');
       expect(result.stderr).toBe('');
+      const report = JSON.parse(result.stdout);
+      expect(report.operation).toBe('create');
     } finally {
       rmSync(tempRoot, { force: true, recursive: true });
     }

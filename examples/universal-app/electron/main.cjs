@@ -9,7 +9,7 @@ function createWindow() {
     height: 760,
     minWidth: 760,
     minHeight: 560,
-    title: 'Universal Example App',
+    title: 'LinksQL Playground',
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,

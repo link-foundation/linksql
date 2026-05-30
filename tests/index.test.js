@@ -1,35 +1,73 @@
 /**
- * Example test file using test-anywhere
- * Works with Node.js, Bun, and Deno
+ * Tests for the package entry point: the public API surface re-exported from
+ * `src/index.js`. These run on Node.js, Bun, and Deno (read-only).
  */
 
 import { describe, it, expect } from 'test-anywhere';
-import { add, multiply } from '../src/index.js';
+import {
+  createDatabase,
+  Database,
+  parse,
+  serializeAll,
+  match,
+  execute,
+  linkMatches,
+  splitQuery,
+  linkToLino,
+  Subscriptions,
+  Triggers,
+  TRIGGER_MODES,
+  LinksQLServer,
+  LinksQLClient,
+} from '../src/index.js';
 
-describe('add function', () => {
-  it('should add two positive numbers', () => {
-    expect(add(2, 3)).toBe(5);
-  });
-
-  it('should add negative numbers', () => {
-    expect(add(-1, -2)).toBe(-3);
-  });
-
-  it('should add zero', () => {
-    expect(add(5, 0)).toBe(5);
+describe('public API surface', () => {
+  it('re-exports the notation, engine, query, trigger, and net layers', () => {
+    expect(typeof parse).toBe('function');
+    expect(typeof serializeAll).toBe('function');
+    expect(typeof match).toBe('function');
+    expect(typeof execute).toBe('function');
+    expect(typeof linkMatches).toBe('function');
+    expect(typeof splitQuery).toBe('function');
+    expect(typeof linkToLino).toBe('function');
+    expect(typeof Database).toBe('function');
+    expect(typeof Subscriptions).toBe('function');
+    expect(typeof Triggers).toBe('function');
+    expect(typeof LinksQLServer).toBe('function');
+    expect(typeof LinksQLClient).toBe('function');
+    expect(TRIGGER_MODES).toEqual(['never', 'once', 'always']);
   });
 });
 
-describe('multiply function', () => {
-  it('should multiply two positive numbers', () => {
-    expect(multiply(2, 3)).toBe(6);
+describe('createDatabase factory', () => {
+  it('returns a fresh, empty Database', () => {
+    const db = createDatabase();
+    expect(db instanceof Database).toBe(true);
+    expect(db.count()).toBe(0);
   });
 
-  it('should multiply by zero', () => {
-    expect(multiply(5, 0)).toBe(0);
+  it('runs the canonical create / read / update / delete cycle', () => {
+    const db = createDatabase();
+
+    const created = db.query('() ((1 1))');
+    expect(created.operation).toBe('create');
+    expect(created.created).toEqual([{ index: 1, source: 1, target: 1 }]);
+
+    const read = db.query('((1: 1 1))');
+    expect(read.operation).toBe('read');
+    expect(read.matched.length).toBe(1);
+
+    const updated = db.query('((1: 1 1)) ((1: 1 2))');
+    expect(updated.operation).toBe('update');
+    expect(updated.updated).toEqual([{ index: 1, source: 1, target: 2 }]);
+
+    const deleted = db.query('((1: 1 2)) ()');
+    expect(deleted.operation).toBe('delete');
+    expect(db.count()).toBe(0);
   });
 
-  it('should multiply negative numbers', () => {
-    expect(multiply(-2, 3)).toBe(-6);
+  it('forwards options to the Database constructor', () => {
+    const db = createDatabase({ autoCreate: false });
+    expect(() => db.query('() ((ghost ghost))')).toThrow();
   });
 });

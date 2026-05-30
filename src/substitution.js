@@ -259,6 +259,25 @@ export function match(restriction, ctx) {
 }
 
 /**
+ * Test whether a single link satisfies at least one of the given patterns.
+ *
+ * Each pattern is tried with a fresh binding, so this answers "could this link
+ * have been part of a match for this restriction?" — the question the
+ * subscription layer asks of every changed link.
+ *
+ * @param {object[]} patterns - Restriction pattern nodes.
+ * @param {{index: number, source: number, target: number}} link - A link.
+ * @param {object} ctx - Execution context (`store`, optional `names`).
+ * @returns {boolean} Whether the link matches any pattern.
+ */
+export function linkMatches(patterns, link, ctx) {
+  if (patterns.length === 0) {
+    return true;
+  }
+  return patterns.some((pattern) => matchOne(pattern, link, {}, ctx));
+}
+
+/**
  * Execute one substitution operation against the store.
  *
  * @param {object[]} restriction - Restriction pattern nodes.

@@ -1,41 +1,61 @@
-import { createElement as h, useMemo, useState } from 'react';
-import { add, multiply } from '../../../src/index.js';
+import { createElement as h, useState } from 'react';
+import { Database } from '../../../src/query.js';
 
 const repositoryUrl =
   import.meta.env.VITE_REPOSITORY_URL ??
-  'https://github.com/link-foundation/js-ai-driven-development-pipeline-template';
+  'https://github.com/link-foundation/linksql';
 
-const desktopTargets = [
+// Canonical one-liners that exercise the single substitution operation: every
+// query is `(restriction) (substitution)`, positionally paired.
+const exampleQueries = [
   {
-    label: 'Windows',
-    detail: 'Installer or portable package from the latest desktop build.',
+    label: 'Create',
+    query: '() ((alice loves bob))',
+    detail: 'An empty restriction with one substitution creates a link.',
   },
   {
-    label: 'macOS',
-    detail: 'Signed archive when Apple credentials are configured.',
+    label: 'Read',
+    query: '(($i: $s $t))',
+    detail: 'A lone restriction with variables reads every link.',
   },
   {
-    label: 'Linux',
-    detail: 'Zip, deb, or rpm output from Electron Forge.',
+    label: 'Update',
+    query: '((alice loves bob)) ((alice loves carol))',
+    detail: 'Pairing a match with a new shape rewrites it in place.',
+  },
+  {
+    label: 'Delete',
+    query: '((alice loves carol)) ()',
+    detail: 'A trailing restriction with no substitution removes the match.',
   },
 ];
 
-function parseInput(value) {
-  const number = Number(value);
-  return Number.isFinite(number) ? number : 0;
+function createSeedDatabase() {
+  const db = new Database();
+  db.query('() ((alice loves bob))');
+  return db;
 }
 
-function NumberField({ id, label, value, onChange }) {
+function snapshot(db) {
+  return { lino: db.toLino(), links: db.links() };
+}
+
+function QueryField({ value, onChange, onRun }) {
   return h(
     'label',
-    { className: 'number-field', htmlFor: id },
-    h('span', null, label),
+    { className: 'number-field', htmlFor: 'query-input' },
+    h('span', null, 'LinksQL query (Links Notation)'),
     h('input', {
-      id,
-      inputMode: 'decimal',
-      type: 'number',
+      id: 'query-input',
       value,
+      spellCheck: false,
+      autoComplete: 'off',
       onChange: (event) => onChange(event.target.value),
+      onKeyDown: (event) => {
+        if (event.key === 'Enter') {
+          onRun();
+        }
+      },
     })
   );
 }
@@ -49,91 +69,116 @@ function ResultTile({ label, value, tone }) {
   );
 }
 
-function DownloadTarget({ label, detail }) {
-  return h('li', null, h('span', null, label), h('small', null, detail));
+function LinkRow({ link }) {
+  return h(
+    'li',
+    null,
+    h('span', null, `(${link.index}: ${link.source} ${link.target})`),
+    h('small', null, `source ${link.source}, target ${link.target}`)
+  );
 }
 
 export function App() {
-  const [left, setLeft] = useState('2');
-  const [right, setRight] = useState('3');
-  const parsedLeft = parseInput(left);
-  const parsedRight = parseInput(right);
-  const addition = useMemo(
-    () => add(parsedLeft, parsedRight),
-    [parsedLeft, parsedRight]
-  );
-  const multiplication = useMemo(
-    () => multiply(parsedLeft, parsedRight),
-    [parsedLeft, parsedRight]
-  );
+  const [db] = useState(createSeedDatabase);
+  const [queryText, setQueryText] = useState('() ((alice loves bob))');
+  const [report, setReport] = useState(null);
+  const [error, setError] = useState('');
+  const [view, setView] = useState(() => snapshot(db));
+
+  const runQuery = () => {
+    try {
+      const result = db.query(queryText);
+      setReport(result);
+      setError('');
+      setView(snapshot(db));
+    } catch (failure) {
+      setError(failure.message);
+      setReport(null);
+    }
+  };
 
   return h(
     'main',
     { className: 'app-shell' },
     h(
       'section',
-      { className: 'workspace', 'aria-labelledby': 'calculator-title' },
+      { className: 'workspace', 'aria-labelledby': 'playground-title' },
       h(
         'div',
         { className: 'calculator-panel' },
-        h('p', { className: 'eyebrow' }, 'Package function UI'),
-        h('h1', { id: 'calculator-title' }, 'Universal Example App'),
+        h('p', { className: 'eyebrow' }, 'Single substitution operation'),
+        h('h1', { id: 'playground-title' }, 'LinksQL'),
         h(
           'div',
           { className: 'input-grid' },
-          h(NumberField, {
-            id: 'left-number',
-            label: 'First value',
-            value: left,
-            onChange: setLeft,
-          }),
-          h(NumberField, {
-            id: 'right-number',
-            label: 'Second value',
-            value: right,
-            onChange: setRight,
+          h(QueryField, {
+            value: queryText,
+            onChange: setQueryText,
+            onRun: runQuery,
           })
         ),
         h(
           'div',
           { className: 'results-grid', 'aria-live': 'polite' },
           h(ResultTile, {
-            label: 'Addition',
-            value: addition,
+            label: 'Operation',
+            value: error ? 'error' : (report?.operation ?? '—'),
             tone: 'green',
           }),
           h(ResultTile, {
-            label: 'Multiplication',
-            value: multiplication,
+            label: 'Links in store',
+            value: view.links.length,
             tone: 'blue',
           })
+        ),
+        error ? h('p', { className: 'eyebrow', role: 'alert' }, error) : null,
+        h(
+          'ul',
+          { className: 'target-list' },
+          exampleQueries.map((example) =>
+            h(
+              'li',
+              { key: example.label },
+              h(
+                'button',
+                {
+                  type: 'button',
+                  className: 'download-link',
+                  onClick: () => setQueryText(example.query),
+                },
+                `${example.label}: ${example.query}`
+              ),
+              h('small', null, example.detail)
+            )
+          )
         )
       ),
       h(
         'aside',
-        { className: 'distribution-panel', 'aria-labelledby': 'desktop-title' },
-        h('h2', { id: 'desktop-title' }, 'Desktop builds'),
+        { className: 'distribution-panel', 'aria-labelledby': 'store-title' },
+        h('h2', { id: 'store-title' }, 'Links store'),
         h(
           'p',
           null,
-          'The same React bundle is used by GitHub Pages, Electron, Android, and iOS.'
+          'Every query runs against an in-memory Database. Links are doublets ' +
+            '— (index: source target) — deduplicated by their (source, target) pair.'
         ),
         h(
           'ul',
           { className: 'target-list' },
-          desktopTargets.map((target) =>
-            h(DownloadTarget, { key: target.label, ...target })
-          )
+          view.links.length === 0
+            ? h('li', null, h('span', null, 'The store is empty.'))
+            : view.links.map((link) => h(LinkRow, { key: link.index, link }))
         ),
         h(
           'a',
           {
             className: 'download-link',
-            href: `${repositoryUrl}/releases/latest`,
+            href: repositoryUrl,
             target: '_blank',
             rel: 'noreferrer',
           },
-          'Open desktop downloads'
+          'Open the LinksQL repository'
         )
       )
     )

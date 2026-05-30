@@ -22,7 +22,7 @@
  * tracing, dumps PNG signatures, and prints the resolved <html data-theme>
  * and <html lang> so any future regression is diagnosable from CI logs alone.
  */
-/* global document, window, URL */
+/* global document, window */
 
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
