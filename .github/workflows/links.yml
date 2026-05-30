@@ -36,6 +36,11 @@ jobs:
           # Exclude case-studies directory - these are research documents from
           # external repos with references to files and issues that don't exist
           # in this repository (similar exclusion pattern as eslint.config.js)
+          #
+          # Exclude the Vite universal-app entry HTML: its `/favicon.svg` and
+          # `/src/main.js` are root-relative build-time virtual paths that
+          # resolve against the app's own web root (public/), not the repo
+          # root, so lychee cannot statically resolve them.
           args: >-
             --verbose
             --no-progress
@@ -44,6 +49,7 @@ jobs:
             --max-retries 3
             --timeout 30
             --exclude-path docs/case-studies
+            --exclude-path js/examples/universal-app/index.html
             './**/*.md'
             './**/*.html'
           # Fail the workflow if broken links are detected. Known false
