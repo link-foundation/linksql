@@ -174,6 +174,33 @@ Serialization is the inverse and produces canonical text:
 A stored link `{index, source, target}` has the canonical form
 `(index: source target)`, e.g. `(3: 1 2)`.
 
+### 2.5 Links Notation as the wire protocol
+
+Links Notation is not only the surface syntax for queries — it is the **data
+transfer protocol**. Every structured value that crosses a network boundary
+(query reports, link lists, introspection and schema documents, subscription
+events) is encoded as Links Notation text rather than JSON. Inside a process an
+implementation may work with native JSON-shaped objects; a single codec boundary
+converts between the two:
+
+```
+object   --encode-->   "((operation read) (matched ()))"
+"(...)"  --decode-->    object
+```
+
+The JavaScript reference uses
+[`lino-objects-codec`](https://github.com/link-foundation/lino-objects-codec)
+for this mapping. A conformant server:
+
+- defaults to the `application/lino` content type for both requests and
+  responses;
+- MAY accept and emit the JSON projection of a payload when a client opts in via
+  a standard `Accept` (or `Content-Type`) header of `application/json`;
+- when a request advertises both, Links Notation wins.
+
+JSON is therefore an opt-in convenience for plain clients; the canonical wire
+form is always Links Notation.
+
 ---
 
 ## 3. Queries
@@ -321,13 +348,17 @@ is the only way the live store changes mid-operation.
 Assume an empty database with auto-create on.
 
 ```
-() ((alice loves bob))
+() (((alice loves) bob))
 ```
 
-`alice`, `loves`, `bob` are unknown names; output resolution materialises each as
-a point (`(1:1 1)`, `(2:2 2)`, `(3:3 3)`). The nested links resolve bottom-up:
-`(alice loves)` → a new link `(4: 1 2)`, then `(… bob)` → `(5: 4 3)`. Operation:
-**create**.
+A link has exactly two endpoints, so the relation "alice loves bob" is the
+higher-order link `((alice loves) bob)` — the link `(alice loves)` is its source
+and `bob` is its target. `alice`, `loves`, `bob` are unknown names; output
+resolution materialises the nested link depth-first. Resolving the source
+`(alice loves)` first creates the points `alice` → `(1: 1 1)` and `loves` →
+`(2: 2 2)`, then the link `(alice loves)` → `(3: 1 2)`; resolving the target
+creates the point `bob` → `(4: 4 4)`; finally the outer link → `(5: 3 4)`.
+Operation: **create**.
 
 ```
 (($i: $s $t))
@@ -337,15 +368,15 @@ One pattern, all variables, no substitution → **read**. It matches every link,
 binding `$i`, `$s`, `$t` to each link's index/source/target.
 
 ```
-((alice loves bob)) ((alice loves carol))
+(((alice loves) bob)) (((alice loves) carol))
 ```
 
-The restriction matches the existing link; the substitution rewrites it in place
-to point at a (newly materialised) `carol`. Its index is preserved. Operation:
-**update**.
+The restriction matches the existing link `(5: 3 4)`; the substitution rewrites
+it in place, materialising a new point `carol` → `(6: 6 6)` and pointing the
+link's target at it (`(5: 3 6)`). Its index is preserved. Operation: **update**.
 
 ```
-((alice loves carol)) ()
+(((alice loves) carol)) ()
 ```
 
 `paired = 0`, so the matched link falls into the delete pass. Operation:
@@ -364,7 +395,7 @@ execute is precisely what lets a lone restriction mean "read" rather than
 
 Indices are convenient for machines but opaque to humans, so a **names** registry
 maps labels to indices (mirroring link-cli's sidecar `names.links` file). This
-lets a query say `(alice loves bob)` instead of `(7 9 8)`.
+lets a query say `((alice loves) bob)` instead of `((7 9) 8)`.
 
 - `resolve(name)` → the bound index, or nothing. Used during matching.
 - `ensure(name)` → the bound index; if the name is unknown and **auto-create** is
@@ -389,10 +420,10 @@ Every executed query returns a structured, JSON-serialisable **report**:
 {
   "operation": "update",
   "matched": [
-    { "links": [{ "index": 5, "source": 4, "target": 3 }], "binding": {} }
+    { "links": [{ "index": 5, "source": 3, "target": 4 }], "binding": {} }
   ],
   "created": [],
-  "updated": [{ "index": 5, "source": 4, "target": 6 }],
+  "updated": [{ "index": 5, "source": 3, "target": 6 }],
   "deleted": []
 }
 ```
@@ -450,8 +481,49 @@ GraphQL exposes a schema; LinksQL exposes its store shape. `introspect()` return
 - `names` — every `{ name, index }` association in the registry.
 - `links` — every stored link.
 
-Because everything is a link, there is no separate type system to introspect:
-the links _are_ the schema, and named references are the human-facing vocabulary.
+Because everything is a link, the store needs no separate type system to
+introspect: the links _are_ the data, and named references are the human-facing
+vocabulary. An OPTIONAL **schema layer** (§8.1) sits above this for applications
+that want a declared, GraphQL-class API contract.
+
+### 8.1 Schemas
+
+To match "the features expected from GraphQL", an implementation MAY offer a
+**schema** layer: a declarative API contract that is itself written in Links
+Notation, so the same notation describes data _and_ the shape of the API that
+serves it. A schema is a single `(schema [name] …declarations)` link whose
+declarations are:
+
+| Declaration                          | GraphQL analogue       | Meaning                                            |
+| ------------------------------------ | ---------------------- | -------------------------------------------------- |
+| `(type Name)`                        | object type            | a declared object type                             |
+| `(relation r (from A) (to B))`       | a typed field / edge   | a relation from type `A` to type `B`               |
+| `(query name pattern…)`              | a named query          | a reusable read template                           |
+| `(subscription name pattern…)`       | a named subscription   | a named live feed (a restriction streamed on change) |
+
+```
+(schema social
+  (type Person)
+  (type Post)
+  (relation name (from Person) (to Text))
+  (relation author (from Post) (to Person))
+  (relation likes (from Person) (to Post))
+  (query everyone (($p: $p $p)))
+  (subscription newLikes ((1 $post))))
+```
+
+- **Scalars are inferred**: any relation endpoint not declared as a `type` (here
+  `Text`) is a **scalar**, mirroring GraphQL's leaf types.
+- **Introspection**: a schema produces an introspection document
+  (`{ name, types, scalars, relations, queries, subscriptions }`) — the GraphQL
+  `__schema` analogue. Like every payload, it travels over the wire as Links
+  Notation (§2.5).
+- **Round-trip**: a parsed schema MUST render back to equivalent Links Notation.
+- A malformed schema (not a single `(schema …)` link, an unknown declaration
+  keyword, or a relation missing its `from`/`to` type) is an error.
+
+A server generated from a schema (§11) takes its name from the schema and serves
+the schema's introspection document, named queries and named subscriptions.
 
 ---
 
@@ -518,6 +590,8 @@ can later be removed.
 
 The reference server exposes a database over plain HTTP. It is OPTIONAL for an
 implementation, but those that provide it MUST use these routes and shapes.
+Structured responses are encoded as Links Notation by default and as JSON only
+when the client opts in via `Accept: application/json` (§2.5).
 
 | Method + path             | Request                                  | Response                                     |
 | ------------------------- | ---------------------------------------- | -------------------------------------------- |
@@ -529,8 +603,18 @@ implementation, but those that provide it MUST use these routes and shapes.
 | `GET /export`             | —                                        | `text/plain` canonical LiNo                  |
 | `GET /subscribe?pattern=` | restriction in the `pattern` query param | `text/event-stream` (§11.1)                  |
 
+A server generated from a schema (§8.1) additionally serves:
+
+| Method + path             | Request | Response                                          |
+| ------------------------- | ------- | ------------------------------------------------- |
+| `GET /schema`             | —       | the schema introspection document (§8.1)          |
+| `POST /query/<name>`      | —       | the report of running the named query             |
+| `GET /subscribe/<name>`   | —       | `text/event-stream` for the named subscription    |
+
 - A `POST /query` body is interpreted as JSON only when the `content-type`
   includes `application/json`; otherwise the raw body is the query text.
+- The schema routes return `404` when the server was not built from a schema, or
+  when the named query/subscription is not declared.
 - Unknown routes return `404` with `{ error }`. Any thrown error returns `400`
   with `{ error: message }`.
 
@@ -552,7 +636,10 @@ The reference client mirrors the server over `fetch`: `query`, `links`,
 response is surfaced as an error using the body's `error` field when present.
 `subscribe(pattern, onEvent, { signal })` consumes the SSE stream and returns
 `{ ready, done, close }` — `ready` resolves once the stream is open, `done`
-settles when it ends, and `close()` aborts it.
+settles when it ends, and `close()` aborts it. Against a schema-generated server
+(§8.1) it adds `schema()` (fetch the introspection document), `runNamed(name)`
+(run a named query) and `subscribeNamed(name, onEvent, { signal })` (consume a
+named subscription, mirroring `subscribe`).
 
 ---
 
@@ -585,8 +672,9 @@ state and the same report (§6) as this specification describes, given:
 - the operation classification of §6.1,
 - the named-reference and auto-create behaviour of §5.
 
-The HTTP protocol (§11), CLI (§12), subscriptions (§9), and triggers (§10) are
-each independently OPTIONAL but, when present, MUST follow the shapes defined
-here. The JavaScript implementation in `src/` is the executable reference for all
-of the above; `rust/`, `python/`, and `csharp/` are validated against the same
-behaviour.
+The HTTP protocol (§11), CLI (§12), subscriptions (§9), triggers (§10), the wire
+protocol (§2.5), and schemas (§8.1) are each independently OPTIONAL but, when
+present, MUST follow the shapes defined here. The JavaScript implementation in
+`js/` is the executable reference for all of the above; `rust/`, `python/`, and
+`csharp/` are validated against the same behaviour (engine, wire protocol and
+schema model; they do not ship the HTTP server, client or CLI).

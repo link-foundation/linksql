@@ -11,8 +11,12 @@ atom of the graph. A query is a pair of pattern lists — a *restriction* and a
 behaviours (read, create, update, delete) are derived from how the two lists line
 up positionally.
 
-The JavaScript implementation in `../src` is the ground truth, and the normative
-behaviour is defined in [`../docs/SPECIFICATION.md`](../docs/SPECIFICATION.md).
+The JavaScript implementation in `../js/src` is the ground truth, and the
+normative behaviour is defined in
+[`../docs/SPECIFICATION.md`](../docs/SPECIFICATION.md).
+
+A link has exactly two endpoints, so a relation like "alice loves bob" is the
+higher-order link `((alice loves) bob)` — every pattern carries 0 or 2 values.
 
 ## Quick start
 
@@ -20,8 +24,8 @@ behaviour is defined in [`../docs/SPECIFICATION.md`](../docs/SPECIFICATION.md).
 from linksql import Database
 
 db = Database()
-db.query("() ((alice loves bob))")   # create
-report = db.query("(($s $r $t))")    # read every relation
+db.query("() (((alice loves) bob))")  # create the higher-order link
+report = db.query("(($i: $s $t))")    # read every relation
 print(report.operation, report.matched)
 ```
 
@@ -57,3 +61,5 @@ The top-level `linksql` package re-exports the engine surface:
   `link_matches`, `Context`, and `SubstitutionError`.
 - `linksql.query` — `Database`, `split_query`, `link_to_lino`, `QueryReport`,
   `QueryError`.
+- `linksql.schema` — the GraphQL-class schema model: `Schema`, `Relation`,
+  `NamedQuery`, `NamedSubscription`, and `SchemaError`.

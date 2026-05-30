@@ -1,9 +1,11 @@
 # LinksQL (C#)
 
 A faithful C# (.NET 8) port of the [LinksQL](../) core engine. The JavaScript
-implementation under [`../src`](../src) is the ground truth; this port reproduces
-its observable behaviour exactly, with the same parser, store, name registry,
-substitution engine and query semantics.
+implementation under [`../js/src`](../js/src) is the ground truth; this port
+reproduces its observable behaviour exactly, with the same parser, store, name
+registry, substitution engine and query semantics. A link has exactly two
+endpoints, so a higher-order relation like "alice loves bob" is the nested link
+`((alice loves) bob)`.
 
 LinksQL is an associative engine built on a single primitive — the **link**
 (doublet) `(index: source target)` — and a single operation: **substitution**.
@@ -20,6 +22,8 @@ substitution pattern lists line up positionally. Surface syntax is
 | `src/LinksQL/Names.cs` | `Names`: bidirectional label ↔ index registry (points) |
 | `src/LinksQL/Substitution.cs` | The substitution engine: matching, join, materialisation, `Execute` |
 | `src/LinksQL/Query.cs` | `Database` + query split/classify/serialise helpers |
+| `src/LinksQL/Protocol.cs` | Links Notation wire-protocol encoding of reports/links/introspection |
+| `src/LinksQL/Schema.cs` | The GraphQL-class schema model (`Schema`, `Relation`, named queries/subscriptions) |
 | `src/LinksQL/Errors.cs` | The exception hierarchy (names mirror the JS reference) |
 | `tests/LinksQL.Tests/` | xUnit tests porting `tests/lino.test.js` and `tests/engine.test.js` 1:1 |
 

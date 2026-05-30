@@ -5,7 +5,7 @@ and four reference implementations that must stay behaviourally identical:
 
 | Language   | Directory | Toolchain                              |
 | ---------- | --------- | -------------------------------------- |
-| JavaScript | `src/`    | Node.js / Bun / Deno, `test-anywhere`  |
+| JavaScript | `js/`     | Node.js / Bun / Deno, `test-anywhere`  |
 | Rust       | `rust/`   | `cargo test`, `clippy`, `rustfmt`      |
 | Python     | `python/` | `pytest`, `ruff`, `mypy`               |
 | C#         | `csharp/` | `dotnet test` (xUnit), `dotnet format` |
@@ -17,10 +17,11 @@ change in every implementation and its tests so the four stay in lock-step.
 
 1. **Fork the repository** and clone your fork
 2. **Create a feature branch**: `git checkout -b feature/my-feature`
-3. **Install dependencies**: `bun install` (or `npm install`)
+3. **Install dependencies**: `cd js && bun install` (or `npm install`) — the
+   JavaScript package and its tooling live in `js/`
 4. **Make your changes**
-5. **Run local checks**: `bun run check`
-6. **Create a changeset**: `bun run changeset`
+5. **Run local checks**: `bun run check` (from `js/`)
+6. **Create a changeset**: `bun run changeset` (from `js/`)
 7. **Commit and push** (pre-commit hooks will run automatically)
 8. **Create a Pull Request**
 
@@ -34,7 +35,7 @@ This benefits both AI and human developers by ensuring files remain readable and
 
 ### Formatting and Linting
 
-All code must pass:
+All code must pass (run these from `js/`):
 
 ```bash
 # Check formatting
@@ -66,7 +67,8 @@ Tests should:
 - Use the [test-anywhere](https://github.com/link-foundation/test-anywhere) framework
 
 ```bash
-# JavaScript — run tests on any runtime
+# JavaScript — run tests on any runtime (from js/)
+cd js
 bun test --timeout 30000
 npm test
 deno test --allow-read
