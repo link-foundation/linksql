@@ -30,6 +30,7 @@
 
 pub mod lino;
 pub mod names;
+pub mod protocol;
 pub mod query;
 pub mod store;
 pub mod substitution;
@@ -38,7 +39,12 @@ pub mod substitution;
 // mirroring the flat module of the JavaScript package entry point.
 pub use lino::{parse, serialize, serialize_all, tokenize, Node, Ref, Token};
 pub use names::Names;
-pub use query::{link_to_lino, split_query, Database, MatchRow, Operation, QueryReport};
+pub use protocol::{
+    decode, encode, encode_report, prefers_json, Value, JSON_CONTENT_TYPE, LINO_CONTENT_TYPE,
+};
+pub use query::{
+    link_to_lino, split_query, Database, Introspection, MatchRow, Operation, QueryReport,
+};
 pub use store::{Link, LinksStore};
 pub use substitution::{
     execute, link_matches, link_slots, match_restriction, RawResult, Row, Slots, Spec,
