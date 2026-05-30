@@ -141,3 +141,20 @@ vite.config.ts.timestamp-*
 
 # jscpd reports
 reports/
+
+# === Polyglot reference implementations (rust/, python/, csharp/) ===
+# Rust build output
+rust/target/
+# Python caches and build artifacts (scoped to python/ so the JS repo is unaffected)
+python/**/__pycache__/
+python/**/*.py[cod]
+python/.pytest_cache/
+python/.mypy_cache/
+python/.ruff_cache/
+python/**/*.egg-info/
+python/.coverage
+python/coverage.xml
+# C# build output (scoped to csharp/ so the repo-root bin/linksql.js is never ignored)
+csharp/**/bin/
+csharp/**/obj/
+csharp/**/TestResults/

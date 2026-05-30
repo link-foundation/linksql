@@ -113,6 +113,11 @@ export default [
       '.eslintcache',
       // Case study raw data files (downloaded from external sources)
       'docs/case-studies/*/data/**',
+      // Polyglot reference implementations are linted by their native
+      // toolchains (clippy, ruff, dotnet analyzers), not ESLint.
+      'rust/**',
+      'python/**',
+      'csharp/**',
     ],
   },
 ];
