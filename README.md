@@ -106,13 +106,13 @@ See [`examples/basic-usage.js`](examples/basic-usage.js) for a runnable version.
 # Run a query against an in-memory store
 npx linksql query '() ((1 1))'
 
-# Persist to a file between invocations
-npx linksql --db-file links.json query '() ((alice loves bob))'
-npx linksql --db-file links.json query '(($i: $s $t))'
+# Persist to a LiNo file between invocations with --db
+npx linksql query '() ((alice loves bob))' --db links.lino
+npx linksql query '(($i: $s $t))' --db links.lino
 
 # Import / export the whole store as Links Notation
-npx linksql --db-file links.json export
-npx linksql import links.lino
+npx linksql export --db links.lino
+npx linksql import other.lino --db links.lino
 
 # Serve the HTTP API
 npx linksql serve --port 4000
@@ -123,16 +123,21 @@ npx linksql serve --port 4000
 ```js
 import { startServer, LinksQLClient } from '@link-foundation/linksql';
 
-const server = startServer({ port: 4000 });
+const server = await startServer({ port: 4000 });
 
 const client = new LinksQLClient('http://localhost:4000');
-await client.query('() ((alice loves bob))');
 
 // Subscriptions stream changes filtered by a restriction (GraphQL
 // subscriptions, replaced by Server-Sent Events over the same operation).
-for await (const change of client.subscribe('(($i: $s $t))')) {
-  console.log('changed:', change);
-}
+const sub = client.subscribe('(($i: $s $t))', (event) => {
+  console.log('changed:', event.operation, event.matching);
+});
+await sub.ready;
+
+await client.query('() ((alice loves bob))');
+
+sub.close();
+await server.close();
 ```
 
 ## Reference implementations
