@@ -20,7 +20,8 @@
 //
 // Outputs (written to GITHUB_OUTPUT):
 //   mjs-changed, js-changed, package-changed, docs-changed,
-//   workflow-changed, any-code-changed
+//   workflow-changed, any-code-changed,
+//   rust-changed, python-changed, csharp-changed
 
 import { execSync } from 'child_process';
 import { appendFileSync } from 'fs';
@@ -129,6 +130,24 @@ function detectChanges() {
     file.startsWith('.github/workflows/')
   );
   setOutput('workflow-changed', workflowChanged ? 'true' : 'false');
+
+  // Per-language detection for the polyglot reference implementations.
+  // These gate the native lint/test jobs (Rust, Python, C#) so a PR that
+  // only touches one language does not run the others on pull_request.
+  const rustChanged = changedFiles.some((file) =>
+    /^rust\/.*\.(rs|toml|lock)$/.test(file)
+  );
+  setOutput('rust-changed', rustChanged ? 'true' : 'false');
+
+  const pythonChanged = changedFiles.some((file) =>
+    /^python\/.*\.(py|toml|cfg|ini)$/.test(file)
+  );
+  setOutput('python-changed', pythonChanged ? 'true' : 'false');
+
+  const csharpChanged = changedFiles.some((file) =>
+    /^csharp\/.*\.(cs|csproj|sln|props|targets)$/.test(file)
+  );
+  setOutput('csharp-changed', csharpChanged ? 'true' : 'false');
 
   const codeChangedFiles = changedFiles.filter(
     (file) => !isExcludedFromCodeChanges(file)

@@ -57,6 +57,9 @@ jobs:
       docs-changed: ${{ steps.changes.outputs.docs-changed }}
       workflow-changed: ${{ steps.changes.outputs.workflow-changed }}
       any-code-changed: ${{ steps.changes.outputs.any-code-changed }}
+      rust-changed: ${{ steps.changes.outputs.rust-changed }}
+      python-changed: ${{ steps.changes.outputs.python-changed }}
+      csharp-changed: ${{ steps.changes.outputs.csharp-changed }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -357,21 +360,282 @@ jobs:
             echo "All required documentation files present."
           fi
 
+  # === POLYGLOT REFERENCE IMPLEMENTATIONS (Rust, Python, C#) ===
+  # The rust/, python/ and csharp/ ports are behaviourally-identical reference
+  # implementations, validated by their NATIVE toolchains (rustfmt/clippy,
+  # ruff/mypy/pytest, dotnet format/build/test) because ESLint, Prettier and
+  # jscpd are scoped to the JavaScript sources. Each language gets a fast lint
+  # job (ubuntu-only — static analysis is platform-independent) and a test job
+  # (matrix across OSes where the runtime is cheap). On a PR they run only when
+  # that language's files — or the workflow itself — change; on push they always
+  # run so the release gate sees a complete signal across every language.
+
+  lint-rust:
+    name: Lint Rust (rustfmt + clippy)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [detect-changes]
+    if: |
+      github.event_name == 'push' ||
+      needs.detect-changes.outputs.rust-changed == 'true' ||
+      needs.detect-changes.outputs.workflow-changed == 'true'
+    defaults:
+      run:
+        working-directory: rust
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Simulate fresh merge with base branch (PR only)
+        if: github.event_name == 'pull_request'
+        working-directory: ${{ github.workspace }}
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: bash scripts/simulate-fresh-merge.sh
+
+      - name: Install Rust toolchain (rustfmt + clippy)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Run clippy (warnings denied)
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+  test-rust:
+    name: Test Rust (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    needs: [detect-changes]
+    if: |
+      github.event_name == 'push' ||
+      needs.detect-changes.outputs.rust-changed == 'true' ||
+      needs.detect-changes.outputs.workflow-changed == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    defaults:
+      run:
+        working-directory: rust
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Simulate fresh merge with base branch (PR only)
+        if: github.event_name == 'pull_request'
+        working-directory: ${{ github.workspace }}
+        shell: bash
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: bash scripts/simulate-fresh-merge.sh
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      # Plain `cargo test` runs unit, integration AND documentation tests.
+      - name: Run tests
+        run: cargo test --all-features
+
+  lint-python:
+    name: Lint Python (ruff + mypy)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [detect-changes]
+    if: |
+      github.event_name == 'push' ||
+      needs.detect-changes.outputs.python-changed == 'true' ||
+      needs.detect-changes.outputs.workflow-changed == 'true'
+    defaults:
+      run:
+        working-directory: python
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Simulate fresh merge with base branch (PR only)
+        if: github.event_name == 'pull_request'
+        working-directory: ${{ github.workspace }}
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: bash scripts/simulate-fresh-merge.sh
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install package with dev extras
+        run: pip install -e ".[dev]"
+
+      - name: Run ruff (lint)
+        run: ruff check .
+
+      - name: Run ruff (format check)
+        run: ruff format --check .
+
+      - name: Run mypy
+        run: mypy src
+
+  test-python:
+    name: Test Python (${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [detect-changes]
+    if: |
+      github.event_name == 'push' ||
+      needs.detect-changes.outputs.python-changed == 'true' ||
+      needs.detect-changes.outputs.workflow-changed == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        # Validate the declared floor (3.9, matching the mypy target) plus a
+        # mid and recent interpreter.
+        python-version: ['3.9', '3.11', '3.13']
+    defaults:
+      run:
+        working-directory: python
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Simulate fresh merge with base branch (PR only)
+        if: github.event_name == 'pull_request'
+        working-directory: ${{ github.workspace }}
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: bash scripts/simulate-fresh-merge.sh
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install package with dev extras
+        run: pip install -e ".[dev]"
+
+      - name: Run tests
+        run: pytest tests/ -v
+
+  lint-csharp:
+    name: Lint C# (dotnet format)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [detect-changes]
+    if: |
+      github.event_name == 'push' ||
+      needs.detect-changes.outputs.csharp-changed == 'true' ||
+      needs.detect-changes.outputs.workflow-changed == 'true'
+    defaults:
+      run:
+        working-directory: csharp
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Simulate fresh merge with base branch (PR only)
+        if: github.event_name == 'pull_request'
+        working-directory: ${{ github.workspace }}
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: bash scripts/simulate-fresh-merge.sh
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      # Verifies code-style and analyzer rules across the solution.
+      - name: Check formatting and analyzers
+        run: dotnet format --verify-no-changes
+
+  test-csharp:
+    name: Test C# (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    needs: [detect-changes]
+    if: |
+      github.event_name == 'push' ||
+      needs.detect-changes.outputs.csharp-changed == 'true' ||
+      needs.detect-changes.outputs.workflow-changed == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    defaults:
+      run:
+        working-directory: csharp
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Simulate fresh merge with base branch (PR only)
+        if: github.event_name == 'pull_request'
+        working-directory: ${{ github.workspace }}
+        shell: bash
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: bash scripts/simulate-fresh-merge.sh
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      # TreatWarningsAsErrors is on, so a warning fails the build here.
+      - name: Build (Release, warnings as errors)
+        run: dotnet build -c Release --no-restore
+
+      - name: Run tests
+        run: dotnet test -c Release --no-build
+
   # Release - only runs on main after tests pass (for push events)
   release:
     name: Release
-    needs: [lint, test]
+    needs:
+      [
+        lint,
+        test,
+        lint-rust,
+        test-rust,
+        lint-python,
+        test-python,
+        lint-csharp,
+        test-csharp,
+      ]
     # Typical run is well under 10min. 30min gives npm and GitHub
     # release APIs room for retries without allowing a 6h hang.
     timeout-minutes: 30
     # Use !cancelled() instead of always() so cancellation propagates correctly (hive-mind issue #1278)
-    # This is needed because lint/test jobs have a transitive dependency on changeset-check
+    # This is needed because lint/test jobs have a transitive dependency on changeset-check.
+    # On push to main every language job runs (their `if` includes the push
+    # event), so a clean release requires green across JS plus all three ports.
     if: |
       !cancelled() &&
       github.ref == 'refs/heads/main' &&
       github.event_name == 'push' &&
       needs.lint.result == 'success' &&
-      needs.test.result == 'success'
+      needs.test.result == 'success' &&
+      needs.lint-rust.result == 'success' &&
+      needs.test-rust.result == 'success' &&
+      needs.lint-python.result == 'success' &&
+      needs.test-python.result == 'success' &&
+      needs.lint-csharp.result == 'success' &&
+      needs.test-csharp.result == 'success'
     runs-on: ubuntu-latest
     # Permissions required for npm OIDC trusted publishing
     permissions:
