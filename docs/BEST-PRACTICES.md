@@ -180,9 +180,16 @@ Per-test timeouts are also enforced inside the runners that support a
 global budget:
 
 ```bash
-node --test --test-timeout=30000 tests/
+node --test --test-timeout=30000
 bun test --timeout 30000
 ```
+
+The Node command is invoked with no path argument so the built-in test
+runner uses its default recursive discovery (matching `tests/*.test.js`
+while excluding `node_modules`). This stays correct across Node 20, 22 and
+24 and on every OS — unlike a `tests/*.test.js` glob (PowerShell does not
+expand it on Windows) or a bare `tests/` directory argument (Node 22+ no
+longer scans a positional directory and tries to load it as a module).
 
 Deno does not currently provide an equivalent single global per-test
 timeout flag, so Deno tests are protected by the 10-minute matrix job
