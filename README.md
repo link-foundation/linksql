@@ -311,30 +311,30 @@ PREVIEW_VERBOSE=1 npm run example:web:preview-images
 
 ## CI/CD pipeline
 
-The release workflow (`.github/workflows/release.yml`) implements a fast-fail
-pipeline reused from the link-foundation AI-driven-development templates:
+Each implementation has its own path-filtered workflow that only runs when files
+in its directory (or the workflow itself) change, so a Rust-only change never
+spends CI minutes on the JavaScript matrix:
 
-**Fast checks** (run first for fastest feedback):
+| Workflow                         | Triggers on    | Fast-fail stages                                                        |
+| -------------------------------- | -------------- | ----------------------------------------------------------------------- |
+| [`js.yml`](.github/workflows/js.yml)         | `js/**`       | lint/format/duplication/line-limits → test (3 runtimes × 3 OS) → publish |
+| [`rust.yml`](.github/workflows/rust.yml)     | `rust/**`     | `cargo fmt` + `clippy` → `cargo test` + doctests → publish               |
+| [`python.yml`](.github/workflows/python.yml) | `python/**`   | `ruff` + `mypy` → `pytest` (3 Python versions) → publish                 |
+| [`csharp.yml`](.github/workflows/csharp.yml) | `csharp/**`   | `dotnet format` → `dotnet test` (Release) → publish                      |
 
-1. **Test compilation** — syntax-checks all source with `node --check`
-2. **Lint, format & secrets scan** — ESLint, Prettier, jscpd, and
-   [secretlint](https://github.com/secretlint/secretlint)
-3. **File line limits** — enforces a 1500-line limit on JS and Markdown files
-4. **Changeset check** — validates the PR adds exactly one changeset
-5. **Version check** — blocks manual version changes in `package.json`
-6. **Documentation validation** — checks required doc files exist
+Two repository-wide workflows run on any matching change:
 
-**Slow checks** (only after fast checks pass):
+- [`links.yml`](.github/workflows/links.yml) — checks every Markdown/HTML link
+  with [lychee](https://github.com/lycheeverse/lychee) (case studies excluded).
+- [`example-app.yml`](.github/workflows/example-app.yml) — builds the universal
+  example app and refreshes its preview screenshots.
 
-7. **Test matrix** — 3 runtimes × 3 OS = 9 JavaScript test combinations, plus
-   the Rust, Python, and C# implementation test jobs
-8. **Broken link checks** — validates all links in Markdown/HTML files
-
-**Release** (on merge to `main`): changeset merge, automated versioning, and npm
-publishing via OIDC trusted publishing.
-
-See [docs/BEST-PRACTICES.md](docs/BEST-PRACTICES.md) for detailed explanations of
-each practice.
+**Release** (on push to `main`): each language workflow compares its manifest
+version against the registry and publishes only if that version is new, then
+creates a language-prefixed GitHub release. See
+[docs/CONTRIBUTING.md](docs/CONTRIBUTING.md#versioning-and-releases) for the
+version-bump convention and [docs/BEST-PRACTICES.md](docs/BEST-PRACTICES.md) for
+detailed explanations of each practice.
 
 ## Contributing
 
@@ -344,7 +344,8 @@ steps:
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/my-feature`
 3. Make your changes (and update the specification if semantics change)
-4. Create a changeset: `npm run changeset`
+4. Bump the version of any package you changed (see
+   [Versioning and releases](docs/CONTRIBUTING.md#versioning-and-releases))
 5. Commit your changes (pre-commit hooks will run automatically)
 6. Push and create a Pull Request
 

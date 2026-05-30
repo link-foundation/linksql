@@ -53,14 +53,16 @@ Tests run across multiple dimensions:
 - **Cross-platform**: Ubuntu, macOS, and Windows
 - **Test framework**: [test-anywhere](https://github.com/link-foundation/test-anywhere) for universal compatibility
 
-### 5. Changeset-Based Versioning
+### 5. Per-Language Version-Bump Releasing
 
-The changeset system:
+Each implementation is released independently from its own manifest
+(`js/package.json`, `rust/Cargo.toml`, `python/pyproject.toml`,
+`csharp/src/LinksQL/LinksQL.csproj`):
 
-- **Eliminates merge conflicts** - Each PR creates an independent changeset file
-- **Automates version bumps** - Highest bump type wins when merging
-- **Generates changelogs** - Release notes are compiled automatically
-- **Supports semantic versioning** - patch/minor/major bumps are explicit
+- **Independent versions** - A change to one language never forces a release of another
+- **Idempotent publishing** - Each workflow publishes only when its manifest version is not already on the registry, so PRs without a bump simply ship nothing
+- **Explicit semantic versioning** - Contributors choose patch/minor/major by editing the manifest version directly
+- **No shared tooling** - There is no changeset step to keep in sync across the four implementations
 
 ### 6. Pre-commit Hooks
 
@@ -74,11 +76,11 @@ Local quality gates prevent broken commits from reaching CI:
 
 Automated release workflows ensure:
 
-- **No manual version management** - Versions update automatically
-- **OIDC trusted publishing** - No API tokens needed in CI
-- **Validated releases only** - All checks must pass before publishing
-- **Dual trigger modes** - Both automatic (on merge) and manual (workflow dispatch)
-- **Optional Docker Hub publishing** - Projects with Docker images can publish version-matched Docker tags after npm package availability is confirmed
+- **One workflow per language** - `js.yml`, `rust.yml`, `python.yml` and `csharp.yml` each release their own package
+- **Path-filtered triggers** - A workflow only runs when files in its directory change, saving CI minutes
+- **Validated releases only** - Lint, format and the full test matrix must pass before publishing
+- **Idempotent publishing** - Each workflow checks the registry first and skips publishing a version that already exists
+- **Language-prefixed GitHub releases** - Tags such as `js_<version>` and `rust_<version>` keep the four release streams distinct
 
 ### 8. CI/CD Pipeline Features
 
@@ -92,36 +94,37 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 ```
 
-This configuration (implemented in this template) ensures:
+This configuration (applied in `example-app.yml`) ensures:
 
 - **Main branch**: Runs finish without newer pushes cancelling in-flight release work
 - **PR branches**: Newer pushes cancel stale runs to save CI minutes and avoid racing checks
 
 See [DETAILED-COMPARISON.md](./case-studies/issue-25/DETAILED-COMPARISON.md) for the full analysis of best practices from both repositories.
 
-#### Fresh Merge Simulation
+#### Fresh Merge Testing
 
-Before running checks on PRs, the workflow:
-
-1. Fetches the latest base branch
-2. Attempts to merge it into the PR branch
-3. Runs checks against the merged state
-
-This prevents "stale merge preview" issues where checks pass on outdated code.
-The simulation logic is extracted to `scripts/simulate-fresh-merge.sh` for reuse across jobs.
+The per-language workflows trigger on the standard `pull_request` event, which
+GitHub Actions evaluates against the **merge commit** of the PR branch with the
+latest base branch — not the PR branch in isolation. This prevents "stale merge
+preview" issues where checks pass on outdated code, without any custom merge
+script.
 
 ### 9. Fast-Fail Job Ordering
 
 **Run fast checks before slow checks** to give the fastest possible feedback:
 
 ```
-Fast checks (~7-30s each):     Slow checks (~1-10 min each):
-├── test-compilation           └── test matrix (3 runtimes x 3 OS)
-├── lint (format + ESLint)
+Fast checks (~7-30s each):     Slow checks (~1-20 min each):
+├── lint (ESLint)              └── test matrix (3 runtimes x 3 OS for JS;
+├── format (Prettier)              Python/Rust/C# versions for the ports)
+├── duplication (jscpd)
 └── check-file-line-limits
 ```
 
-Slow test matrix only runs after all fast checks pass. This dramatically reduces feedback time for AI solvers — a syntax error is caught in ~7 seconds instead of waiting for the full test matrix.
+Each language workflow gates its `test` job on the `check`/`lint` job, so the
+slow test matrix only runs after the fast checks pass. This dramatically reduces
+feedback time for AI solvers — a lint or formatting error is caught in seconds
+instead of waiting for the full test matrix.
 
 ### 10. File Line Limits in CI
 
@@ -129,25 +132,22 @@ In addition to the ESLint `max-lines` rule (which only covers the source files i
 
 - All JavaScript files (`.js`, `.mjs`, `.cjs`, including scripts)
 - All Markdown files (`.md`, including documentation)
-- `.github/workflows/release.yml` (to prevent workflow bloat)
 
-This is enforced by `scripts/check-file-line-limits.sh`. Case-study and generated-data files under `docs/case-studies/*/data/` are exempt because they mirror external sources verbatim (the same paths are ignored by ESLint).
+This is enforced by `js/scripts/check-file-line-limits.sh` (run via `npm run check` in the `js` workflow). Case-study and generated-data files under `docs/case-studies/*/data/` are exempt because they mirror external sources verbatim (the same paths are ignored by ESLint).
 
 ### 11. Secrets Detection
 
-Automated scanning for accidental credential leaks using [secretlint](https://github.com/secretlint/secretlint):
+Scanning for accidental credential leaks using [secretlint](https://github.com/secretlint/secretlint):
 
-- Runs in the lint job to catch secrets before code reaches review
-- Configured via `.secretlintrc.json` with recommended rules
-- Prevents API tokens, passwords, and private keys from being committed
+- The recommended rule set is provided via `.secretlintrc.json`
+- Run on demand with `npx secretlint "**/*"` to catch API tokens, passwords, and private keys before committing
 
 ### 12. Documentation Validation
 
-Documentation files are validated in CI just like code:
+Documentation is validated in CI just like code:
 
-- File size limits (1500 lines, enforced by the `check-file-line-limits` job alongside JavaScript files)
-- Required files check (README.md, CHANGELOG.md, CONTRIBUTING.md, BEST-PRACTICES.md)
-- Only runs when documentation files change
+- **Line limits**: the 1500-line cap covers Markdown as well as JavaScript (`js/scripts/check-file-line-limits.sh`, run by the `js` workflow's `check` job)
+- **Broken links**: `links.yml` checks every link in Markdown/HTML on any doc change (case studies excluded)
 
 ### 13. Reasonable Timeouts on Every Job and Test
 
@@ -164,23 +164,17 @@ a test, network call, package install, or release step hangs:
 - The broken link checker has 10 minutes for slow external hosts and
   Web Archive fallback probes.
 
-Current timeout bands:
+Current timeout bands (per-language workflows share the same shape):
 
-| Job                       | Cap    |
-| ------------------------- | ------ |
-| `detect-changes`          | 5 min  |
-| `test-compilation`        | 5 min  |
-| `check-file-line-limits`  | 5 min  |
-| `version-check`           | 5 min  |
-| `validate-docs`           | 5 min  |
-| `changeset-check`         | 10 min |
-| `lint`                    | 10 min |
-| `test` per runtime and OS | 10 min |
-| `links.yml` link checker  | 10 min |
-| `changeset-pr`            | 10 min |
-| `release`                 | 30 min |
-| `instant-release`         | 30 min |
-| `docker-publish`          | 30 min |
+| Job                                | Cap          |
+| ---------------------------------- | ------------ |
+| `findChanged<Lang>Files`           | 10 min       |
+| `check` / `lint`                   | 10 min       |
+| `test` per runtime/OS/version      | 15 min (Rust 20) |
+| `publishTo<Registry>`              | 15 min (Rust 20) |
+| `publishRelease`                   | 10 min       |
+| `links.yml` link checker           | 10 min       |
+| `example-app.yml` build/package    | 10–30 min    |
 
 Per-test timeouts are also enforced inside the runners that support a
 global budget:
@@ -215,14 +209,11 @@ The template implements a defense-in-depth approach:
 ```
 Developer Machine    ->    CI/CD Pipeline               ->    Release
 ├── Pre-commit hooks      ├── Fast checks (~7-30s)           ├── All checks pass
-├── Local tests           │   ├── test-compilation           ├── Version bump
-└── IDE integration       │   ├── lint + secrets scan        ├── Changelog update
-                          │   └── file line limits           └── Publish package
-                          ├── Slow checks (~1-10 min)
-                          │   └── test matrix (9 combos)
-                          ├── Documentation validation
-                          ├── Optional Docker Hub publish
-                          └── Changeset verify
+├── Local tests           │   ├── lint + format + dedup      ├── Manifest version is new
+└── IDE integration       │   └── file line limits           └── Publish to registry
+                          ├── Slow checks (~1-20 min)            + GitHub release
+                          │   └── test matrix (per language)
+                          └── Broken-link check (Markdown/HTML)
 ```
 
 Each layer catches different issues, ensuring no problematic code reaches production.
