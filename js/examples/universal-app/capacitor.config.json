@@ -1,0 +1,8 @@
+{
+  "appId": "foundation.link.linksql.example",
+  "appName": "LinksQL Playground",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}

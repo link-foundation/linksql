@@ -1,0 +1,160 @@
+name: csharp
+
+on:
+  push:
+    branches: main
+    paths:
+      - 'csharp/**'
+      - '.github/workflows/csharp.yml'
+  pull_request:
+    paths:
+      - 'csharp/**'
+      - '.github/workflows/csharp.yml'
+
+env:
+  NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+defaults:
+  run:
+    working-directory: csharp
+
+jobs:
+  findChangedCsFiles:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      isCsFilesChanged: ${{ steps.setIsCsFilesChangedOutput.outputs.isCsFilesChanged }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v47
+      - name: Set output isCsFilesChanged
+        id: setIsCsFilesChangedOutput
+        run: |
+          isCsFilesChanged='false'
+          echo "Changed files: ${{ steps.changed-files.outputs.all_changed_files }}"
+          for changedFile in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            if [[ $changedFile == csharp/* ]] || [[ $changedFile == .github/workflows/csharp.yml ]]; then
+              isCsFilesChanged='true'
+              break
+            fi
+          done
+          echo "isCsFilesChanged=${isCsFilesChanged}" >> $GITHUB_OUTPUT
+          echo "isCsFilesChanged: ${isCsFilesChanged}"
+
+  lint:
+    needs: [findChangedCsFiles]
+    if: ${{ needs.findChangedCsFiles.outputs.isCsFilesChanged == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Check formatting
+        run: dotnet format --verify-no-changes --verbosity diagnostic
+
+  test:
+    needs: [findChangedCsFiles, lint]
+    if: ${{ needs.findChangedCsFiles.outputs.isCsFilesChanged == 'true' }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+      - name: Test
+        run: dotnet test --configuration Release --no-build
+
+  pushToNuget:
+    needs: [test, findChangedCsFiles]
+    if: ${{ needs.findChangedCsFiles.outputs.isCsFilesChanged == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '8.0.x'
+      - name: Check if version already published to NuGet.org
+        id: version-check
+        run: |
+          PACKAGE_VERSION=$(grep -oP '(?<=<Version>)[^<]*' src/LinksQL/LinksQL.csproj | head -1)
+          PACKAGE_ID=$(grep -oP '(?<=<PackageId>)[^<]*' src/LinksQL/LinksQL.csproj | head -1)
+          PACKAGE_ID_LC=$(echo "$PACKAGE_ID" | tr '[:upper:]' '[:lower:]')
+          echo "Package: $PACKAGE_ID@$PACKAGE_VERSION"
+          echo "package_id=$PACKAGE_ID" >> $GITHUB_OUTPUT
+          echo "package_version=$PACKAGE_VERSION" >> $GITHUB_OUTPUT
+          STATUS=$(curl -sS -o /dev/null -w '%{http_code}' "https://api.nuget.org/v3-flatcontainer/${PACKAGE_ID_LC}/${PACKAGE_VERSION}/${PACKAGE_ID_LC}.nuspec")
+          if [ "$STATUS" = "200" ]; then
+            echo "Version already on NuGet, skipping publish"
+            echo "should_publish=false" >> $GITHUB_OUTPUT
+          else
+            echo "Version not on NuGet, will publish"
+            echo "should_publish=true" >> $GITHUB_OUTPUT
+          fi
+      - name: Pack
+        if: steps.version-check.outputs.should_publish == 'true'
+        run: dotnet pack src/LinksQL/LinksQL.csproj --configuration Release --output ./artifacts
+      - name: Publish to NuGet
+        if: steps.version-check.outputs.should_publish == 'true'
+        run: |
+          if [ -z "$NUGET_API_KEY" ]; then
+            echo "::error title=NUGET_API_KEY missing::Cannot publish without an API key."
+            exit 1
+          fi
+          dotnet nuget push artifacts/*.nupkg \
+            --api-key "$NUGET_API_KEY" \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
+
+  publishRelease:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [pushToNuget, findChangedCsFiles]
+    if: ${{ needs.findChangedCsFiles.outputs.isCsFilesChanged == 'true' && needs.pushToNuget.result == 'success' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check if GitHub release already exists
+        id: release-check
+        run: |
+          PACKAGE_VERSION=$(grep -oP '(?<=<Version>)[^<]*' src/LinksQL/LinksQL.csproj | head -1)
+          TAG_NAME="csharp_$PACKAGE_VERSION"
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            echo "should_create_release=false" >> $GITHUB_OUTPUT
+          else
+            echo "should_create_release=true" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create GitHub release
+        if: steps.release-check.outputs.should_create_release == 'true'
+        run: |
+          PACKAGE_VERSION=$(grep -oP '(?<=<Version>)[^<]*' src/LinksQL/LinksQL.csproj | head -1)
+          PACKAGE_ID=$(grep -oP '(?<=<PackageId>)[^<]*' src/LinksQL/LinksQL.csproj | head -1)
+          gh release create "csharp_${PACKAGE_VERSION}" \
+            --title "[C#] $PACKAGE_VERSION" \
+            --notes "https://www.nuget.org/packages/$PACKAGE_ID/"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

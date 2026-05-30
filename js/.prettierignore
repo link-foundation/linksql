@@ -1,0 +1,16 @@
+node_modules
+coverage
+dist
+*.min.js
+package-lock.json
+.eslintcache
+.playwright-mcp/
+CLAUDE.md
+# Case study raw data files (downloaded from external sources)
+docs/case-studies/*/data/
+
+# Polyglot reference implementations have their own native formatters
+# (rustfmt, ruff format, dotnet format). Prettier only governs the JS repo.
+rust/
+python/
+csharp/

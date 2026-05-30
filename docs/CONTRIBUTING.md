@@ -1,13 +1,28 @@
-# Contributing to js-ai-driven-development-pipeline-template
+# Contributing to LinksQL
+
+LinksQL ships a single specification ([`docs/SPECIFICATION.md`](SPECIFICATION.md))
+and four reference implementations that must stay behaviourally identical:
+
+| Language   | Directory | Toolchain                              |
+| ---------- | --------- | -------------------------------------- |
+| JavaScript | `js/`     | Node.js / Bun / Deno, `test-anywhere`  |
+| Rust       | `rust/`   | `cargo test`, `clippy`, `rustfmt`      |
+| Python     | `python/` | `pytest`, `ruff`, `mypy`               |
+| C#         | `csharp/` | `dotnet test` (xUnit), `dotnet format` |
+
+When you change query semantics, update the specification first, then mirror the
+change in every implementation and its tests so the four stay in lock-step.
 
 ## Development Workflow
 
 1. **Fork the repository** and clone your fork
 2. **Create a feature branch**: `git checkout -b feature/my-feature`
-3. **Install dependencies**: `bun install` (or `npm install`)
+3. **Install dependencies**: `cd js && bun install` (or `npm install`) — the
+   JavaScript package and its tooling live in `js/`
 4. **Make your changes**
-5. **Run local checks**: `bun run check`
-6. **Create a changeset**: `bun run changeset`
+5. **Run local checks**: `bun run check` (from `js/`)
+6. **Bump the version** of any package you changed (see
+   [Versioning and releases](#versioning-and-releases))
 7. **Commit and push** (pre-commit hooks will run automatically)
 8. **Create a Pull Request**
 
@@ -21,7 +36,7 @@ This benefits both AI and human developers by ensuring files remain readable and
 
 ### Formatting and Linting
 
-All code must pass:
+All code must pass (run these from `js/`):
 
 ```bash
 # Check formatting
@@ -53,80 +68,66 @@ Tests should:
 - Use the [test-anywhere](https://github.com/link-foundation/test-anywhere) framework
 
 ```bash
-# Run tests
+# JavaScript — run tests on any runtime (from js/)
+cd js
 bun test --timeout 30000
 npm test
 deno test --allow-read
 ```
 
-## Version Management with Changesets
-
-This project uses [Changesets](https://github.com/changesets/changesets) to manage versions and changelogs. This eliminates merge conflicts that occur when multiple PRs bump the version in `package.json`.
-
-### Adding a Changeset
-
-When you make changes that affect users, add a changeset:
+For the other implementations, run the native test commands inside each
+directory:
 
 ```bash
-bun run changeset
-# or
-npm run changeset
+# Rust
+cd rust && cargo test
+
+# Python
+cd python && python -m pytest
+
+# C#
+cd csharp && dotnet test
 ```
 
-This will prompt you to:
+## Versioning and releases
 
-1. Select the type of change (patch/minor/major)
-2. Provide a summary of the changes
+Each implementation is released independently from its own manifest. There is no
+shared version and no changeset tooling — when you change a package in a way that
+affects users, bump that package's version in the same PR.
 
-The changeset will be saved as a markdown file in `.changeset/` and should be committed with your PR.
+| Language   | Version lives in                  | Published to | Release tag        |
+| ---------- | --------------------------------- | ------------ | ------------------ |
+| JavaScript | `js/package.json`                 | npm          | `js_<version>`     |
+| Rust       | `rust/Cargo.toml`                 | crates.io    | `rust_<version>`   |
+| Python     | `python/pyproject.toml`           | PyPI         | `python_<version>` |
+| C#         | `csharp/src/LinksQL/LinksQL.csproj`| NuGet       | `csharp_<version>` |
 
-### Changeset Guidelines
+Use [semantic versioning](https://semver.org/):
 
-| Type      | When to Use                          | Examples                                            |
+| Bump      | When to Use                          | Examples                                            |
 | --------- | ------------------------------------ | --------------------------------------------------- |
 | **Patch** | Bug fixes, internal changes          | Fix typo, update dependency, refactor internal code |
 | **Minor** | New features, non-breaking additions | Add new function, new optional parameter            |
 | **Major** | Breaking changes                     | Remove function, change API signature               |
 
-Example changeset summary:
+A version bump is **required** for bug fixes, new features, breaking changes and
+public API changes. It is **not** required for documentation-only changes, other
+markdown edits, or CI/CD workflow updates that do not affect users.
 
-```markdown
-Add support for custom configuration via config file
-```
+### Release Process
 
-### What Changes Need Changesets?
+The release process is fully automated per language. On push to `main`, each
+per-language workflow (`js.yml`, `rust.yml`, `python.yml`, `csharp.yml`) only
+runs when files in its directory changed, then:
 
-**Required** for:
+1. **Lint, format and test** the changed implementation
+2. **Compare the manifest version** against the published registry
+3. **Publish** to the registry only if that version is not already published
+4. **Create a GitHub release** tagged with the language-prefixed version
 
-- Bug fixes
-- New features
-- Breaking changes
-- Public API changes
-
-**Not required** for:
-
-- Documentation-only changes (in `./docs` folder)
-- Changes to markdown files
-- CI/CD workflow updates (unless they affect users)
-
-## Release Process
-
-The release process is fully automated:
-
-1. **PR with changeset merged** - The changeset is added to `.changeset/`
-2. **CI detects changesets** - On push to main, CI checks for pending changesets
-3. **Version bump** - Package version is updated based on changeset type
-4. **Changelog update** - `CHANGELOG.md` is updated automatically
-5. **npm publish** - Package is published via OIDC trusted publishing
-6. **GitHub Release** - A release is created with formatted notes
-
-### Multiple Changesets
-
-If multiple PRs are merged before a release:
-
-- All changesets are merged into one
-- The highest version bump type wins (major > minor > patch)
-- All descriptions are preserved in chronological order
+Because publishing is idempotent (it is skipped when the version already exists),
+merging a PR without a version bump simply ships nothing — no manual coordination
+is needed when several PRs land before a release.
 
 ## Pull Request Guidelines
 
@@ -150,15 +151,12 @@ Include:
 
 ### CI Checks
 
-All PRs must pass:
+All PRs must pass the checks for every implementation they touch:
 
-- [ ] Test compilation (syntax check)
-- [ ] Lint, format, and secrets scan
-- [ ] File line limits check
-- [ ] Changeset validation (for code changes)
-- [ ] Documentation validation (when docs change)
-- [ ] Tests on all platforms (Ubuntu, macOS, Windows)
-- [ ] Tests on all runtimes (Node.js, Bun, Deno)
+- [ ] Lint, format and duplication checks (`npm run check`, `cargo fmt`/`clippy`, `ruff`/`mypy`, `dotnet format`)
+- [ ] File line limits check (JavaScript)
+- [ ] Tests on all platforms (Ubuntu, macOS, Windows) and runtimes (Node.js, Bun, Deno) for JavaScript
+- [ ] `cargo test`, `pytest` and `dotnet test` for the Rust, Python and C# ports
 
 ### Fresh Merge Simulation
 

@@ -4,21 +4,21 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
     paths:
-      - 'examples/universal-app/**'
-      - 'src/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'scripts/update-preview-images.mjs'
+      - 'js/examples/universal-app/**'
+      - 'js/src/**'
+      - 'js/package.json'
+      - 'js/package-lock.json'
+      - 'js/scripts/update-preview-images.mjs'
       - '.github/workflows/example-app.yml'
   push:
     branches:
       - main
     paths:
-      - 'examples/universal-app/**'
-      - 'src/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'scripts/update-preview-images.mjs'
+      - 'js/examples/universal-app/**'
+      - 'js/src/**'
+      - 'js/package.json'
+      - 'js/package-lock.json'
+      - 'js/scripts/update-preview-images.mjs'
       - '.github/workflows/example-app.yml'
   workflow_dispatch:
 
@@ -30,6 +30,10 @@ permissions:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+defaults:
+  run:
+    working-directory: js
 
 jobs:
   web-build:
@@ -44,7 +48,7 @@ jobs:
         with:
           node-version: '24.x'
           cache: npm
-          cache-dependency-path: examples/universal-app/package-lock.json
+          cache-dependency-path: js/examples/universal-app/package-lock.json
 
       - name: Configure GitHub Pages
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -63,14 +67,14 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: universal-example-web
-          path: examples/universal-app/dist
+          path: js/examples/universal-app/dist
           if-no-files-found: error
 
       - name: Upload GitHub Pages artifact
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v5
         with:
-          path: examples/universal-app/dist
+          path: js/examples/universal-app/dist
 
   # Requires Settings → Pages → Source = GitHub Actions to be set once
   # in the repository before this job can succeed. See README → "Deploying
@@ -111,7 +115,7 @@ jobs:
           # the desktop packaging toolchain is compatible with Node 24.
           node-version: '20.x'
           cache: npm
-          cache-dependency-path: examples/universal-app/package-lock.json
+          cache-dependency-path: js/examples/universal-app/package-lock.json
 
       - name: Install app dependencies
         run: npm ci --prefix examples/universal-app
@@ -128,7 +132,7 @@ jobs:
             fi
             sleep 1
           done
-          echo "::error::Desktop package output was not created at examples/universal-app/out"
+          echo "::error::Desktop package output was not created at js/examples/universal-app/out"
           exit 1
         env:
           VITE_REPOSITORY_URL: https://github.com/${{ github.repository }}
@@ -137,7 +141,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: universal-example-desktop-${{ matrix.os }}
-          path: examples/universal-app/out
+          path: js/examples/universal-app/out
           if-no-files-found: error
 
   android-build:
@@ -153,7 +157,7 @@ jobs:
         with:
           node-version: '24.x'
           cache: npm
-          cache-dependency-path: examples/universal-app/package-lock.json
+          cache-dependency-path: js/examples/universal-app/package-lock.json
 
       - name: Setup Java
         uses: actions/setup-java@v5
@@ -178,8 +182,8 @@ jobs:
         with:
           name: universal-example-android
           path: |
-            examples/universal-app/android/app/build/outputs/**/*.apk
-            examples/universal-app/android/app/build/outputs/**/*.aab
+            js/examples/universal-app/android/app/build/outputs/**/*.apk
+            js/examples/universal-app/android/app/build/outputs/**/*.aab
           if-no-files-found: warn
 
   ios-build:
@@ -195,7 +199,7 @@ jobs:
         with:
           node-version: '24.x'
           cache: npm
-          cache-dependency-path: examples/universal-app/package-lock.json
+          cache-dependency-path: js/examples/universal-app/package-lock.json
 
       - name: Install app dependencies
         run: npm ci --prefix examples/universal-app
@@ -206,9 +210,9 @@ jobs:
       - name: Build iOS project
         run: npm --prefix examples/universal-app run mobile:ios:build
 
-  # Regenerate example-app preview screenshots (docs/screenshots/example-app/*)
+  # Regenerate example-app preview screenshots (js/docs/screenshots/example-app/*)
   # using browser-commander + Playwright so README/site images always reflect
-  # the current UI. Issue: #62. Implementation: scripts/update-preview-images.mjs.
+  # the current UI. Issue: #62. Implementation: js/scripts/update-preview-images.mjs.
   preview-regen:
     name: Regenerate Preview Images
     runs-on: ubuntu-latest
@@ -280,9 +284,9 @@ jobs:
         with:
           name: preview-regen-failure-${{ github.run_id }}
           path: |
-            docs/screenshots/
-            web/test-results/
-            web/playwright-report/
+            js/docs/screenshots/
+            js/examples/universal-app/test-results/
+            js/examples/universal-app/playwright-report/
           retention-days: 7
           if-no-files-found: ignore
 

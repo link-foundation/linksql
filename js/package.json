@@ -1,0 +1,75 @@
+{
+  "name": "@link-foundation/linksql",
+  "version": "0.1.0",
+  "description": "LinksQL: an associative query language and reference implementation — GraphQL-class power in the style of link-cli",
+  "type": "module",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
+  "bin": {
+    "linksql": "./bin/linksql.js"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.js"
+    }
+  },
+  "scripts": {
+    "test": "node --test --test-timeout=30000",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check:duplication": "jscpd .",
+    "check:line-limits": "bash scripts/check-file-line-limits.sh",
+    "check": "npm run lint && npm run format:check && npm run check:duplication && npm run check:line-limits",
+    "example:basic": "node examples/basic-usage.js",
+    "example:web:dev": "npm --prefix examples/universal-app run dev",
+    "example:web:build": "npm --prefix examples/universal-app run build",
+    "example:web:preview": "npm --prefix examples/universal-app run preview",
+    "example:web:preview-images": "node scripts/update-preview-images.mjs",
+    "example:desktop:package": "npm --prefix examples/universal-app run desktop:package",
+    "example:desktop:make": "npm --prefix examples/universal-app run desktop:make",
+    "example:mobile:sync": "npm --prefix examples/universal-app run mobile:sync"
+  },
+  "keywords": [
+    "linksql",
+    "query-language",
+    "associative",
+    "links",
+    "doublets",
+    "lino",
+    "graphql-alternative",
+    "graph-database"
+  ],
+  "author": "",
+  "license": "Unlicense",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/link-foundation/linksql.git"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "lino-objects-codec": "^0.4.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.38.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "jscpd": "^4.0.5",
+    "prettier": "^3.6.2",
+    "test-anywhere": "^0.8.48"
+  }
+}

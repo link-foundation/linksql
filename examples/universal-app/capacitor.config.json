@@ -1,8 +1,0 @@
-{
-  "appId": "foundation.link.template.example",
-  "appName": "Universal Example App",
-  "webDir": "dist",
-  "server": {
-    "androidScheme": "https"
-  }
-}
