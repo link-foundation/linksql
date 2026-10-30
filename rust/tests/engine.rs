@@ -95,9 +95,9 @@ fn read_lone_restriction_returns_matches_without_mutating() {
             target: 1
         }
     );
-    assert!(report.created.is_empty());
-    assert!(report.updated.is_empty());
-    assert!(report.deleted.is_empty());
+    assert_eq!(report.created, [] as [Link; 0]);
+    assert_eq!(report.updated, [] as [Link; 0]);
+    assert_eq!(report.deleted, [] as [Link; 0]);
 }
 
 #[test]
