@@ -25,7 +25,7 @@ from linksql import Database
 
 db = Database()
 db.query("() (((alice loves) bob))")  # create the higher-order link
-report = db.query("(($i: $s $t))")    # read every relation
+report = db.query("(($i: $s $t))")  # read every relation
 print(report.operation, report.matched)
 ```
 
