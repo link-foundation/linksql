@@ -20,6 +20,9 @@ def test_manual_trigger(workflow):
     assert "workflow_dispatch" in workflow["on"]
 
 
+@pytest.mark.skipif(
+    os.name == "nt", reason="Change detection runs on Ubuntu and uses POSIX Bash."
+)
 def test_manual_run_without_changed_files(workflow, tmp_path):
     steps = workflow["jobs"]["findChangedPythonFiles"]["steps"]
     changed_files = next(step for step in steps if step.get("id") == "changed-files")
