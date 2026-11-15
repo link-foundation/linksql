@@ -12,7 +12,6 @@ on:
       - '.github/workflows/js.yml'
 
 env:
-  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 defaults:
@@ -88,6 +87,9 @@ jobs:
         run: npm test
 
   publishToNpm:
+    permissions:
+      contents: read
+      id-token: write
     needs: [test, findChangedJsFiles]
     if: ${{ needs.findChangedJsFiles.outputs.isJsFilesChanged == 'true' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
@@ -97,8 +99,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: '24.x'
+      - name: Install npm with trusted publishing support
+        run: npm install --global npm@11.20.0
       - name: Install dependencies
         run: npm ci
       - name: Check if version already published
@@ -114,11 +117,13 @@ jobs:
             echo "Version $PACKAGE_VERSION does not exist on NPM"
             echo "should_publish=true" >> $GITHUB_OUTPUT
           fi
-      - name: Publish to NPM
+      - name: Publish to NPM with OIDC
         if: steps.version-check.outputs.should_publish == 'true'
-        run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if ! npm publish --access public --registry https://registry.npmjs.org; then
+            echo "::error::npm OIDC publish failed. Check the trusted publisher for link-foundation/linksql, workflow js.yml (no environment). See docs/npm-publishing.md. Token fallback is manual only."
+            exit 1
+          fi
 
   publishRelease:
     runs-on: ubuntu-latest

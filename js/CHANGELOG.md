@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.1
+
+### Patch Changes
+
+- Publish JavaScript releases through npm trusted publishing (OIDC) with Node 24
+  and npm 11.20.0, without a default npm token dependency.
+
 ## 0.11.3
 
 ### Patch Changes
