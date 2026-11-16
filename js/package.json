@@ -1,6 +1,6 @@
 {
   "name": "@link-foundation/linksql",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "LinksQL: an associative query language and reference implementation — GraphQL-class power in the style of link-cli",
   "type": "module",
   "main": "src/index.js",
@@ -68,6 +68,7 @@
     "eslint": "^9.38.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
+    "js-yaml": "^4.3.2",
     "jscpd": "^4.0.5",
     "prettier": "^3.6.2",
     "test-anywhere": "^0.8.48"
